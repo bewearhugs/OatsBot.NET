@@ -82,7 +82,7 @@ namespace SysBot.Pokemon.Discord
 
             var pokeName = "";
             if (t == PokeTradeType.Specific && Info.Hub.Config.Discord.DisplayPokeName && pk8.Species != 0)
-                pokeName = $" Receiving: {(Species)pk8.Species}.";
+                pokeName = $" Receiving: {(pk8.IsEgg ? "Mysterious egg" : $"{(Species)pk8.Species}")}.";
             msg = $"{user.Mention} - Added to the {type} queue{ticketID}. Current Position: {position.Position}.{pokeName}";
 
             var botct = Info.Hub.Bots.Count;
