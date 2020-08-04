@@ -30,6 +30,15 @@ namespace SysBot.Pokemon
         [Category(StopConditions), Description("Extra time in milliseconds to wait after an encounter is matched before pressing Capture for EncounterBot or Fossilbot.")]
         public int ExtraTimeWaitCaptureVideo { get; set; } = 10000;
 
+        [Category(StopConditions), Description("Toggle catching Pokémon. Master Ball will be used to guarantee a catch.")]
+        public bool CatchEncounter { get; set; } = false;
+
+        [Category(StopConditions), Description("Toggle whether to inject Master Balls when we run out.")]
+        public bool InjectPokeBalls { get; set; } = false;
+
+        [Category(StopConditions), Description("Enter your numerical Discord ID to be pinged in a log channel upon EggFetch, FossilBot or EncounterBot result.")]
+        public string PingOnMatch { get; set; } = string.Empty;
+
         public static bool EncounterFound(PK8 pk, int[] targetIVs, StopConditionSettings settings)
         {
             if (settings.ShinyTarget != TargetShinyType.DisableOption)
