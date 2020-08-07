@@ -63,7 +63,7 @@ namespace SysBot.Pokemon.Discord
             content = ReusableActions.StripCodeBlock(content);
             SpecifyOT(content, out string specifyOT);
             if (specifyOT != string.Empty)
-                content = System.Text.RegularExpressions.Regex.Replace(content, @"OT: +(\w*)", "", System.Text.RegularExpressions.RegexOptions.Multiline);
+                content = System.Text.RegularExpressions.Regex.Replace(content, @"OT: +(\S*\s?\S*\s?\S*)\n", "", System.Text.RegularExpressions.RegexOptions.Multiline);
 
             var set = new ShowdownSet(content);
             var template = AutoLegalityWrapper.GetTemplate(set);
@@ -415,7 +415,7 @@ namespace SysBot.Pokemon.Discord
             if (!content.Contains("OT: "))
                 return specifyOT = string.Empty;
 
-            return specifyOT = System.Text.RegularExpressions.Regex.Match(content, @"OT: +(\w*)", System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value;
+            return specifyOT = System.Text.RegularExpressions.Regex.Match(content, @"OT: +(\S*\s?\S*\s?\S*)\n", System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value;
         }
     }
 }
