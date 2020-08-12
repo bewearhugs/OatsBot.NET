@@ -284,8 +284,8 @@ namespace SysBot.Pokemon
             else if (poke.Type == PokeTradeType.FixAdOT)
             {
                 var clone = (PK8)pk.Clone();
-                var adOT = System.Text.RegularExpressions.Regex.Match(clone.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)").Value != ""
-                    || System.Text.RegularExpressions.Regex.Match(clone.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)").Value != "";
+                var adOT = System.Text.RegularExpressions.Regex.Match(clone.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)").Value != ""
+                    || System.Text.RegularExpressions.Regex.Match(clone.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)").Value != "";
 
                 if (adOT && clone.OT_Name != $"{TrainerName}")
                 {
