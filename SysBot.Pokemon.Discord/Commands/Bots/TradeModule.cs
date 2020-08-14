@@ -28,6 +28,23 @@ namespace SysBot.Pokemon.Discord
             await ReplyAsync("These are the users who are currently waiting:", embed: embed.Build()).ConfigureAwait(false);
         }
 
+        [Command("eggList")]
+        [Alias("el")]
+        [Summary("Prints the users in the EggRoll queue.")]
+        [RequireSudo]
+        public async Task GetEggRollListAsync()
+        {
+            string msg = Info.GetTradeList(PokeRoutineType.EggRoll);
+            var embed = new EmbedBuilder();
+            embed.AddField(x =>
+            {
+                x.Name = "Pending EggRoll Trades";
+                x.Value = msg;
+                x.IsInline = false;
+            });
+            await ReplyAsync("These are the users who are currently waiting:", embed: embed.Build()).ConfigureAwait(false);
+        }
+
         [Command("trade")]
         [Alias("t")]
         [Summary("Makes the bot trade you the provided Pokémon file.")]
@@ -121,52 +138,38 @@ namespace SysBot.Pokemon.Discord
         }
 
         [Command("eggroll")]
-        [Alias("roll")]
+        [Alias("roll", "r")]
         [Summary("Makes the bot trade you a randomly generated egg.")]
-        [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
-        public async Task EggRaffleAsync()
+        [RequireQueueRole(nameof(DiscordManager.RolesEggRoll))]
+        public async Task EggRollAsync()
         {
-            if (!Info.Hub.Config.Trade.EggRaffle)
-            {
-                await ReplyAsync($"EggRaffle is currently disabled!").ConfigureAwait(false);
-                return;
-            }
-            else if (!Info.Hub.Config.Trade.EggRaffleChannels.Contains(Context.Channel.Id.ToString()) && !Info.Hub.Config.Trade.EggRaffleChannels.Equals(""))
+            if (!Info.Hub.Config.Trade.EggRollChannels.Contains(Context.Channel.Id.ToString()) && !Info.Hub.Config.Trade.EggRollChannels.Equals(""))
             {
                 await ReplyAsync($"You're typing the command in the wrong channel!").ConfigureAwait(false);
                 return;
             }
 
-            if (Info.Hub.Config.Trade.EggRaffleCooldown < 0)
-                Info.Hub.Config.Trade.EggRaffleCooldown = default;
+            if (Info.Hub.Config.Trade.EggRollCooldown < 0)
+                Info.Hub.Config.Trade.EggRollCooldown = default;
 
-            if (!System.IO.File.Exists("EggRngBlacklist.txt"))
-                System.IO.File.Create("EggRngBlacklist.txt").Close();
+            if (!System.IO.File.Exists("EggRollCooldown.txt"))
+                System.IO.File.Create("EggRollCooldown.txt").Close();
 
-            System.IO.StreamReader reader = new System.IO.StreamReader("EggRngBlacklist.txt");
+            System.IO.StreamReader reader = new System.IO.StreamReader("EggRollCooldown.txt");
             var content = reader.ReadToEnd();
             reader.Close();
 
-            var id = $"{Context.Message.Author.Id}";
+            var id = $"{Context.User.Id}";
             var parse = System.Text.RegularExpressions.Regex.Match(content, @"(" + id + @") - (\S*\ \S*\ \w*)", System.Text.RegularExpressions.RegexOptions.Multiline);
-            if (content.Contains($"{Context.Message.Author.Id}"))
+            System.DateTime.TryParse(parse.Groups[2].Value, out System.DateTime time);
+            var timer = time.AddHours(Info.Hub.Config.Trade.EggRollCooldown);
+            var timeRemaining = timer - System.DateTime.Now;
+
+            if (content.Contains(id) && System.DateTime.Now < timer)
             {
-                var timer = System.DateTime.Parse(parse.Groups[2].Value).AddHours(Info.Hub.Config.Trade.EggRaffleCooldown);
-                var timeremaining = timer - System.DateTime.Now;
-                if (System.DateTime.Now >= timer)
-                {
-                    content = content.Replace(parse.Groups[0].Value, $"{id} - {System.DateTime.Now}").TrimEnd();
-                    System.IO.StreamWriter writer = new System.IO.StreamWriter("EggRngBlacklist.txt");
-                    writer.WriteLine(content);
-                    writer.Close();
-                }
-                else
-                {
-                    await ReplyAsync($"{Context.User.Mention}, please try again in {timeremaining.Hours:N0}h : {timeremaining.Minutes:N0}m : {timeremaining.Seconds:N0}s!").ConfigureAwait(false);
-                    return;
-                }
+                await ReplyAsync($"{Context.User.Mention}, please try again in {timeRemaining.Hours:N0}h : {timeRemaining.Minutes:N0}m : {timeRemaining.Seconds:N0}s!").ConfigureAwait(false);
+                return;
             }
-            else System.IO.File.AppendAllText("EggRngBlacklist.txt", $"{Context.Message.Author.Id} - {System.DateTime.Now}{System.Environment.NewLine}");
 
             var code = Info.GetRandomTradeCode();
             int[] validEgg = { 1, 4, 7, 10, 27, 37, 43, 50, 52, 54, 58, 60, 63, 66, 72,
@@ -272,16 +275,14 @@ namespace SysBot.Pokemon.Discord
 
             pkm.ResetPartyStats();
             var sudo = Context.User.GetIsSudo();
-            await AddTradeToQueueAsync(code, Context.User.Username, pkm, sudo).ConfigureAwait(false);
+            await Context.AddToQueueAsync(code, Context.User.Username, sudo, pkm, PokeRoutineType.EggRoll, PokeTradeType.EggRoll).ConfigureAwait(false);
         }
 
         private async Task AddTradeToQueueAsync(int code, string trainerName, PK8 pk8, bool sudo)
         {
             if (!pk8.CanBeTraded() || !IsItemMule(pk8))
             {
-                if (Info.Hub.Config.Trade.ItemMuleCustomMessage == string.Empty || IsItemMule(pk8))
-                    Info.Hub.Config.Trade.ItemMuleCustomMessage = "Provided Pokémon content is blocked from trading!";
-                await ReplyAsync($"{Info.Hub.Config.Trade.ItemMuleCustomMessage}").ConfigureAwait(false);
+                await ReplyAsync($"{(Info.Hub.Config.Trade.ItemMuleCustomMessage == string.Empty || IsItemMule(pk8) ? "Provided Pokémon content is blocked from trading!" : Info.Hub.Config.Trade.ItemMuleCustomMessage)}").ConfigureAwait(false);
                 return;
             }
 
@@ -303,8 +304,7 @@ namespace SysBot.Pokemon.Discord
 
         private bool IsItemMule(PK8 pk8)
         {
-            if (Info.Hub.Config.Trade.ItemMuleSpecies == Species.None || pk8.Species == 132 && Info.Hub.Config.Trade.DittoTrade
-                || Info.Hub.Config.Trade.EggTrade && pk8.Nickname == "Egg" || Context.Message.Content.Contains($"{Info.Hub.Config.Discord.CommandPrefix}roll") || Context.Message.Content.Contains($"{Info.Hub.Config.Discord.CommandPrefix}eggroll"))
+            if (Info.Hub.Config.Trade.ItemMuleSpecies == Species.None || Info.Hub.Config.Trade.DittoTrade && pk8.Species == 132 || Info.Hub.Config.Trade.EggTrade && pk8.Nickname == "Egg")
                 return true;
             return !(pk8.Species != SpeciesName.GetSpeciesID(Info.Hub.Config.Trade.ItemMuleSpecies.ToString()) || pk8.IsShiny);
         }
@@ -411,7 +411,7 @@ namespace SysBot.Pokemon.Discord
             if (!content.Contains("OT: "))
                 return specifyOT = string.Empty;
 
-            return specifyOT = System.Text.RegularExpressions.Regex.Match(content, @"OT:(\S*\s?\S*\s?\S*)?$\W?", System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value.Trim();
+            return specifyOT = System.Text.RegularExpressions.Regex.Match(content, @"OT:(.*)?$\W?", System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value.Trim();
         }
     }
 }
