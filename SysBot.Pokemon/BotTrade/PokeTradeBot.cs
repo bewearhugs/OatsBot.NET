@@ -103,7 +103,11 @@ namespace SysBot.Pokemon
                 Hub.Config.Stream.StartTrade(this, detail, Hub);
                 Hub.Queues.StartTrade(this, detail);
 
-                await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
+
+                if (type != PokeRoutineType.LanTrade) // We don't want to be online for LAN trading.
+                {
+                    await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
+                }
                 var result = await PerformLinkCodeTrade(sav, detail, token).ConfigureAwait(false);
                 if (result != PokeTradeResult.Success) // requeue
                 {
@@ -235,7 +239,7 @@ namespace SysBot.Pokemon
                 await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
                 return PokeTradeResult.RecoverOpenBox;
             }
-
+            
             // Confirm Box 1 Slot 1
             if (poke.Type == PokeTradeType.Specific || poke.Type == PokeTradeType.EggRoll)
             {

@@ -13,6 +13,7 @@
         FixOT,
         EggRoll,
         Dump,
+        LanTrade,
 
         EggFetch,
         FossilBot,
