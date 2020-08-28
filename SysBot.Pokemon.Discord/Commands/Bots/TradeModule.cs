@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using PKHeX.Core;
+using SysBot.Base;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -102,9 +103,12 @@ namespace SysBot.Pokemon.Discord
             var invalid = !(pkm is PK8) || (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality);
             if (invalid && !Info.Hub.Config.Trade.Memes)
             {
-                var imsg = $"Oops! I wasn't able to create something from that. Here's my best attempt for that {spec}!";
-                await Context.Channel.SendPKMAsync(pkm, imsg).ConfigureAwait(false);
-                return;
+                if (Info.Hub.Config.Legality.VerifyLegality == true)
+                {
+                    var imsg = $"Oops! I wasn't able to create something from that. Here's my best attempt for that {spec}!";
+                    await Context.Channel.SendPKMAsync(pkm, imsg).ConfigureAwait(false);
+                    return;
+                }
             }
             else if (Info.Hub.Config.Trade.Memes)
             {
@@ -296,8 +300,11 @@ namespace SysBot.Pokemon.Discord
             var la = new LegalityAnalysis(pk8);
             if (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality)
             {
-                await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
-                return;
+                if (Info.Hub.Config.Legality.VerifyLegality == true)
+                {
+                    await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
+                    return;
+                }
             }
 
             await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
