@@ -2,6 +2,8 @@
 using Discord.Commands;
 using Discord.Net;
 using PKHeX.Core;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SysBot.Pokemon.Discord
@@ -75,7 +77,6 @@ namespace SysBot.Pokemon.Discord
             }
 
             var position = Info.CheckPosition(userID, type);
-
             var ticketID = "";
             if (TradeStartModule.IsStartChannel(Context.Channel.Id))
                 ticketID = $", unique ID: {detail.ID}";
@@ -83,7 +84,7 @@ namespace SysBot.Pokemon.Discord
             var pokeName = "";
             if (t == PokeTradeType.Specific || t == PokeTradeType.EggRoll && Info.Hub.Config.Discord.DisplayPokeName && pk8.Species != 0)
                 pokeName = $" Receiving: {(t == PokeTradeType.EggRoll ? "Mysterious egg" : $"{(Species)pk8.Species}")}.";
-            msg = $"{user.Mention} - Added to the {type} queue{ticketID}. Current Position: {position.Position}.{pokeName}";
+            msg = $"{user.Mention} - Added to the {type} queue{ticketID}. Current Position per Queue [{type}: {position.Position}; Overall: {position.OverallPosition}].{pokeName}";
 
             var botct = Info.Hub.Bots.Count;
             if (position.Position > botct)
