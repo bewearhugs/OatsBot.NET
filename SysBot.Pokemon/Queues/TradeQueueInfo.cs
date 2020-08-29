@@ -25,6 +25,7 @@ namespace SysBot.Pokemon
         {
             lock (_sync)
             {
+                var overallIndex = UsersInQueue.FindIndex(z => z.Equals(uid)) + 1;
                 var index = UsersInQueue.FindIndex(z => z.Equals(uid, type));
                 if (index < 0)
                     return QueueCheckResult<T>.None;
@@ -38,8 +39,9 @@ namespace SysBot.Pokemon
                 }
 
                 var inQueue = UsersInQueue.Count(z => z.Type == entry.Type);
+                var inQueueOverall = UsersInQueue.Count();
 
-                return new QueueCheckResult<T>(true, entry, actualIndex, inQueue);
+                return new QueueCheckResult<T>(true, entry, actualIndex, overallIndex, inQueue, inQueueOverall);
             }
         }
 
