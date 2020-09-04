@@ -66,6 +66,7 @@ namespace SysBot.Pokemon
             {
                 if (waitCounter == 0)
                     Log("No task assigned. Waiting for new task assignment.");
+                    
                 waitCounter++;
                 if (waitCounter % 10 == 0 && Hub.Config.AntiIdle)
                     await Click(B, 1_000, token).ConfigureAwait(false);
@@ -103,10 +104,12 @@ namespace SysBot.Pokemon
                 Hub.Config.Stream.StartTrade(this, detail, Hub);
                 Hub.Queues.StartTrade(this, detail);
 
-
-                if (type != PokeRoutineType.LanTrade) // We don't want to be online for LAN trading.
+                if (type != PokeRoutineType.LanTrade)
                 {
-                    await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
+                    if (type != PokeRoutineType.LanRoll)
+                    {
+                        await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
+                    }
                 }
                 var result = await PerformLinkCodeTrade(sav, detail, token).ConfigureAwait(false);
                 if (result != PokeTradeResult.Success) // requeue
@@ -288,8 +291,8 @@ namespace SysBot.Pokemon
             else if (poke.Type == PokeTradeType.FixOT)
             {
                 var clone = (PK8)pk.Clone();
-                var adOT = System.Text.RegularExpressions.Regex.Match(clone.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)").Value != ""
-                    || System.Text.RegularExpressions.Regex.Match(clone.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)").Value != "";
+                var adOT = System.Text.RegularExpressions.Regex.Match(clone.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != ""
+                    || System.Text.RegularExpressions.Regex.Match(clone.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != "";
 
                 if (adOT && clone.OT_Name != $"{TrainerName}")
                 {
@@ -299,7 +302,7 @@ namespace SysBot.Pokemon
                     clone.PKRS_Cured = false;
                     clone.PKRS_Days = 0;
                     clone.PKRS_Strain = 0;
-                    poke.SendNotification(this, $"```fix\nDetected an ad OT/Nickname with your {(Species)clone.Species}! Fixed it for you!```");
+                    poke.SendNotification(this, $"```fix\nDetected an ad OT/Nickname with your {(Species)clone.Species}!```");
                 }
                 else
                 {
