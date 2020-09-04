@@ -103,12 +103,9 @@ namespace SysBot.Pokemon.Discord
             var invalid = !(pkm is PK8) || (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality);
             if (invalid && !Info.Hub.Config.Trade.Memes)
             {
-                if (Info.Hub.Config.Legality.VerifyLegality == true)
-                {
-                    var imsg = $"Oops! I wasn't able to create something from that. Here's my best attempt for that {spec}!";
-                    await Context.Channel.SendPKMAsync(pkm, imsg).ConfigureAwait(false);
-                    return;
-                }
+                var imsg = $"Oops! I wasn't able to create something from that. Here's my best attempt for that {spec}!";
+                await Context.Channel.SendPKMAsync(pkm, imsg).ConfigureAwait(false);
+                return;
             }
             else if (Info.Hub.Config.Trade.Memes)
             {
@@ -297,17 +294,21 @@ namespace SysBot.Pokemon.Discord
             if (Info.Hub.Config.Trade.EggTrade && pk8.Nickname == "Egg")
                 EggTrade(pk8);
 
-            var la = new LegalityAnalysis(pk8);
-            if (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality)
+            if (!Info.Hub.Config.Trade.LanTrade)
             {
-                if (Info.Hub.Config.Legality.VerifyLegality == true)
+                var la = new LegalityAnalysis(pk8);
+                if (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality)
                 {
                     await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
                     return;
                 }
-            }
 
-            await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
+                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
+            }
+            else
+            {
+                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade).ConfigureAwait(false);
+            }
         }
 
         private bool IsItemMule(PK8 pk8)
@@ -343,7 +344,7 @@ namespace SysBot.Pokemon.Discord
                 return;
 
             var dittoLang = new string[] { "JPN", "ENG", "FRE", "ITA", "GER", "ESP", "KOR", "CHS", "CHT" };
-            var dittoStats = new string[] { "ATK", "SPE" };
+            var dittoStats = new string[] { "ATK", "SPE" , "SPA" };
 
             if (pk8.Nickname.Contains(dittoLang[0]))
                 pk8.Language = (int)LanguageID.Japanese;
@@ -364,13 +365,7 @@ namespace SysBot.Pokemon.Discord
             else if (pk8.Nickname.Contains(dittoLang[8]))
                 pk8.Language = (int)LanguageID.ChineseT;
 
-            if (!(pk8.Nickname.Contains(dittoStats[0]) || pk8.Nickname.Contains(dittoStats[1])))
-                pk8.IVs = new int[] { 31, 31, 31, 31, 31, 31 };
-            else if (pk8.Nickname.Contains(dittoStats[0]))
-                pk8.IVs = new int[] { 31, 0, 31, 31, 31, 31 };
-            else if (pk8.Nickname.Contains(dittoStats[1]))
-                pk8.IVs = new int[] { 31, 31, 31, 0, 31, 31 };
-
+            pk8.MetDate = System.DateTime.Parse("2020/10/20");
             pk8.StatNature = pk8.Nature;
             pk8.SetAbility(7);
             pk8.SetAbilityIndex(1);
@@ -379,6 +374,7 @@ namespace SysBot.Pokemon.Discord
             pk8.Move1_PP = 0;
             pk8.Met_Location = 154;
             pk8.Ball = 21;
+            pk8.IVs = new int[] { 31, pk8.Nickname.Contains(dittoStats[0]) ? 0 : 31, 31, pk8.Nickname.Contains(dittoStats[1]) ? 0 : 31, pk8.Nickname.Contains(dittoStats[2]) ? 0 : 31, 31 };
             pk8.SetSuggestedHyperTrainingData();
 
             if (pk8.Nickname.Contains(dittoStats[0]) && pk8.Nickname.Contains(dittoStats[1]))
@@ -389,12 +385,14 @@ namespace SysBot.Pokemon.Discord
         {
             pk8.IsEgg = true;
             pk8.Egg_Location = 60002;
+            pk8.EggMetDate = System.DateTime.Parse("2020/10/20");
             pk8.HeldItem = 0;
             pk8.CurrentLevel = 1;
             pk8.EXP = 0;
             pk8.DynamaxLevel = 0;
             pk8.Met_Level = 1;
             pk8.Met_Location = 0;
+            pk8.MetDate = System.DateTime.Parse("2020/10/20");
             pk8.CurrentHandler = 0;
             pk8.OT_Friendship = 1;
             pk8.HT_Name = "";
