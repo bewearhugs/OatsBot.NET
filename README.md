@@ -1,9 +1,13 @@
 # SysBot.NET
 ![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
 
-## Support Discord:
+## Support Discords:
 
-For support on setting up your own instance of SysBot.NET, feel free to join the discord! (Beware of un-official discords who claim to be official)
+For support on this fork of SysBot.NET, join this Discord!
+
+[<img src="https://discordapp.com/api/guilds/749855989209235476/widget.png?style=banner2">](https://discord.gg/KtaKUrF)
+
+For support on the original SysBot.NET, join this Discord!
 
 [<img src="https://canary.discordapp.com/api/guilds/401014193211441153/widget.png?style=banner2">](https://discord.gg/tDMvSRv)
 
