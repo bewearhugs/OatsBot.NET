@@ -17,11 +17,6 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
         [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
         public async Task LanRollAsync()
         {
-            if (!Info.Hub.Config.Trade.LanTrade)
-            {
-                await ReplyAsync("This mode is not enabled.");
-                return;
-            }
             var id = $"{Context.User.Id}";
 
             var code = Info.GetRandomTradeCode();

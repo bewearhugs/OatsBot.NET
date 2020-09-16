@@ -10,7 +10,6 @@ namespace SysBot.Pokemon
         public readonly int ExpectedSize = new T().Data.Length;
 
         public readonly PokeTradeHubConfig Settings;
-
         public PokemonPool(PokeTradeHubConfig settings)
         {
             Settings = settings;

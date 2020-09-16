@@ -56,7 +56,7 @@
             this.L_Left.TabIndex = 3;
             this.L_Left.Text = "192.168.123.123\r\nEncounterBot";
             // 
-            // pictureBox1
+            // PB_Lamp
             // 
             this.PB_Lamp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Lamp.Location = new System.Drawing.Point(3, 3);
@@ -65,7 +65,7 @@
             this.PB_Lamp.TabIndex = 4;
             this.PB_Lamp.TabStop = false;
             // 
-            // contextMenuStrip1
+            // RCMenu
             // 
             this.RCMenu.Name = "RCMenu";
             this.RCMenu.ShowImageMargin = false;

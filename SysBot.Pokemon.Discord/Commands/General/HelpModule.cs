@@ -47,7 +47,7 @@ namespace SysBot.Pokemon.Discord
                     mentioned.Add(name);
                     var result = await cmd.CheckPreconditionsAsync(Context).ConfigureAwait(false);
                     if (result.IsSuccess)
-                        description += $"{cmd.Aliases[0]}\n";
+                        description += $"{SysCordInstance.Settings.CommandPrefix}{cmd.Aliases[0]}\n";
                 }
                 if (string.IsNullOrWhiteSpace(description))
                     continue;

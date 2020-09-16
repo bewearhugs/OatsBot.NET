@@ -2,8 +2,10 @@
 using Discord.Commands;
 using PKHeX.Core;
 using SysBot.Base;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 
 namespace SysBot.Pokemon.Discord
 {
@@ -11,6 +13,8 @@ namespace SysBot.Pokemon.Discord
     public class TradeModule : ModuleBase<SocketCommandContext>
     {
         private static TradeQueueInfo<PK8> Info => SysCordInstance.Self.Hub.Queues.Info;
+
+        public PokeBotConfig Config = new PokeBotConfig();
 
         [Command("tradeList")]
         [Alias("tl")]
@@ -97,6 +101,7 @@ namespace SysBot.Pokemon.Discord
             var pkm = sav.GetLegal(template, out _);
             if (specifyOT != string.Empty)
                 pkm.OT_Name = specifyOT;
+
 
             var la = new LegalityAnalysis(pkm);
             var spec = GameInfo.Strings.Species[template.Species];
@@ -294,21 +299,10 @@ namespace SysBot.Pokemon.Discord
             if (Info.Hub.Config.Trade.EggTrade && pk8.Nickname == "Egg")
                 EggTrade(pk8);
 
-            if (!Info.Hub.Config.Trade.LanTrade)
-            {
-                var la = new LegalityAnalysis(pk8);
-                if (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality)
-                {
-                    await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
-                    return;
-                }
-
-                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
-            }
+            if (!Info.Hub.Config.Legality.VerifyLegality)
+                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LanTrade, PokeTradeType.Specific).ConfigureAwait(false);
             else
-            {
-                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade).ConfigureAwait(false);
-            }
+                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
         }
 
         private bool IsItemMule(PK8 pk8)

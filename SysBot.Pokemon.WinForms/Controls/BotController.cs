@@ -99,7 +99,8 @@ namespace SysBot.Pokemon.WinForms
 
             // Color decay from Green based on time
             const int threshold = 100;
-            Color good = Color.Green;
+            Color good = Color.LimeGreen;
+            Color goodLAN = Color.CornflowerBlue;
             Color bad = Color.Red;
 
             var delta = DateTime.Now - lastTime;
@@ -119,7 +120,7 @@ namespace SysBot.Pokemon.WinForms
             {
                 // blend from green->red, favoring green until near saturation
                 var factor = seconds / (double)threshold;
-                var blend = Blend(bad, good, factor * factor);
+                var blend = Blend(bad, Config.CurrentRoutineType == PokeRoutineType.LanTrade || Config.CurrentRoutineType == PokeRoutineType.LanRoll ? goodLAN : good, factor * factor);
                 PB_Lamp.BackColor = blend;
             }
         }

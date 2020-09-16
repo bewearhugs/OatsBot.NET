@@ -37,9 +37,6 @@ namespace SysBot.Pokemon
         [Category(TradeCode), Description("Toggle Egg trades. Can be used with \"ItemMule\".")]
         public bool EggTrade { get; set; } = false;
 
-        [Category(TradeCode), Description("Enables LAN trading.")]
-        public bool LanTrade { get; set; } = false;
-
         [Category(TradeCode), Description("Silly, useless feature to post a meme if someone requests an illegal item for \"ItemMule\".")]
         public bool Memes { get; set; } = false;
 

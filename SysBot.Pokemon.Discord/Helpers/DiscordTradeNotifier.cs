@@ -27,6 +27,9 @@ namespace SysBot.Pokemon.Discord
         {
             var receive = Data.Species == 0 ? string.Empty : $" ({Data.Nickname})";
             Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
+
+            string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"Running Trade #{info.ID}")}";
+            Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
         }
 
         public void TradeSearching(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
@@ -40,6 +43,20 @@ namespace SysBot.Pokemon.Discord
         {
             OnFinish?.Invoke(routine);
             Context.User.SendMessageAsync($"Trade canceled: {msg}").ConfigureAwait(false);
+
+            var hub = new PokeTradeHub<PK8>(new PokeTradeHubConfig());
+            var qInfo = new TradeQueueInfo<PK8>(hub);
+
+            if (qInfo.Count != 0)
+            {
+                string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"Completed Trade #{info.ID}")}";
+                Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
+            }
+            else
+            {
+                string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"Queue is Empty")}";
+                Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
+            }
         }
 
         public void TradeFinished(PokeRoutineExecutor routine, PokeTradeDetail<T> info, T result)
@@ -48,8 +65,24 @@ namespace SysBot.Pokemon.Discord
             var tradedToUser = Data.Species;
             string message;
 
+            var hub = new PokeTradeHub<PK8>(new PokeTradeHubConfig());
+            var qInfo = new TradeQueueInfo<PK8>(hub);
+
+            if (qInfo.Count != 0)
+            {
+                string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"Completed Trade #{info.ID}")}";
+                Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
+            }
+            else
+            {
+                string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"Queue is Empty")}";
+                Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
+            }
+
             if (Data.IsEgg && info.Type == PokeTradeType.EggRoll)
                 message = tradedToUser != 0 ? $"Trade finished. Enjoy your Mysterious egg!" : "Trade finished!";
+            if (Data.IsEgg && info.Type == PokeTradeType.LanRoll)
+                message = tradedToUser != 0 ? $"Trade finished. Enjoy your Really Illegal Egg!" : "Trade finished!";
             else message = tradedToUser != 0 ? $"Trade finished. Enjoy your {(Species)tradedToUser}!" : "Trade finished!";
 
             Context.User.SendMessageAsync(message).ConfigureAwait(false);

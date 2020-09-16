@@ -41,7 +41,7 @@ namespace SysBot.Pokemon
                 var inQueue = UsersInQueue.Count(z => z.Type == entry.Type);
                 var inQueueOverall = UsersInQueue.Count();
 
-                return new QueueCheckResult<T>(true, entry, actualIndex, overallIndex, inQueue, inQueueOverall);
+                return new QueueCheckResult<T>(true, entry, actualIndex, overallIndex, inQueue, inQueueOverall, Hub);
             }
         }
 

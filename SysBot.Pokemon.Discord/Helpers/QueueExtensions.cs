@@ -63,7 +63,7 @@ namespace SysBot.Pokemon.Discord
 
             var trainer = new PokeTradeTrainerInfo(trainerName);
             var notifier = new DiscordTradeNotifier<PK8>(pk8, trainer, code, Context);
-            var detail = new PokeTradeDetail<PK8>(pk8, trainer, notifier, t, code: code);
+            var detail = new PokeTradeDetail<PK8>(pk8, trainer, notifier, t, code: code, userID);
             var trade = new TradeEntry<PK8>(detail, userID, type, name);
 
             var hub = SysCordInstance.Self.Hub;
@@ -83,8 +83,20 @@ namespace SysBot.Pokemon.Discord
 
             var pokeName = "";
             if (t == PokeTradeType.Specific || t == PokeTradeType.EggRoll && Info.Hub.Config.Discord.DisplayPokeName && pk8.Species != 0)
-                pokeName = $" Receiving: {(t == PokeTradeType.EggRoll ? "Mysterious egg" : $"{(Species)pk8.Species}")}.";
-            msg = $"{user.Mention} - Added to the {type} queue{ticketID}. Current Position per Queue [{type}: {position.Position}; Overall: {position.OverallPosition}].{pokeName}";
+                pokeName = $" Receiving: {(t == PokeTradeType.EggRoll ? "Mysterious Egg" : $"{(Species)pk8.Species}")}{(pk8.IsEgg && t != PokeTradeType.EggRoll ? " (Egg)" : "")}.";
+
+            if (t == PokeTradeType.LanRoll && Info.Hub.Config.Discord.DisplayPokeName && pk8.Species != 0)
+                pokeName = $" Receiving: A Really Illegal Egg.";
+
+            string overallPosition;
+            if (position.QueueCount != position.OverallQueueCount)
+                if (type == PokeRoutineType.SeedCheck && hub.Config.Queues.FlexMode == FlexYieldMode.LessCheatyFirst)
+                    overallPosition = $" | __Overall: {position.Position}/{position.OverallQueueCount}__";
+                else
+                    overallPosition = $" | __Overall: {position.OverallPosition}/{position.OverallQueueCount}__";
+            else
+                overallPosition = $"";
+            msg = $"{user.Mention} - Added to the **{type}** queue{ticketID}. Current Position: __{type}: {position.Position}/{position.QueueCount}__{overallPosition}.{pokeName}";
 
             var botct = Info.Hub.Bots.Count;
             if (position.Position > botct)

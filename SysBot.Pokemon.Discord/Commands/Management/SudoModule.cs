@@ -69,6 +69,54 @@ namespace SysBot.Pokemon.Discord
             else await ReplyAsync("User with that ID not found.").ConfigureAwait(false);
         }
 
+        [Command("clearAlt")]
+        [Alias("calt")]
+        [Summary("Clears the Alt Detection file of the provided IGN.")]
+        [RequireSudo]
+        public async Task ClearAlt([Remainder] string ign)
+        {
+            if (ign == string.Empty)
+            {
+                await ReplyAsync("Please provide an In-Game Name.");
+                return;
+            }
+
+            if (!System.IO.Directory.Exists(@"AltDetection\"))
+                System.IO.Directory.CreateDirectory(@"AltDetection\");
+
+            string[] directory = System.IO.Directory.GetFiles(@"AltDetection\");
+
+            foreach (var file in directory)
+            {
+                if (file.Contains(ign))
+                {
+                    System.IO.File.Delete(file);
+
+                    await ReplyAsync($"The IGN: __{ign}__ has been cleared of all Discord IDs.");
+                    break;
+                }
+            }
+        }
+
+        [Command("clearAltAll")]
+        [Alias("caltall")]
+        [Summary("Clears all of the Alt Detection files.")]
+        [RequireSudo]
+        public async Task ClearAltAll()
+        {
+            if (!System.IO.Directory.Exists(@"AltDetection\"))
+                System.IO.Directory.CreateDirectory(@"AltDetection\");
+
+            string[] directory = System.IO.Directory.GetFiles(@"AltDetection\");
+
+            foreach (var file in directory)
+            {
+                System.IO.File.Delete(file);
+            }
+
+            await ReplyAsync("All IGNs have been cleared of their Discord IDs.");
+        }
+
         protected async Task Process(IEnumerable<ulong> values, Func<SensitiveSet<ulong>, ulong, bool> process, Func<DiscordManager, SensitiveSet<ulong>> fetch)
         {
             var mgr = SysCordInstance.Manager;

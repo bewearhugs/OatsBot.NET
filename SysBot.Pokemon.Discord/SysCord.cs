@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PKHeX.Core;
 using SysBot.Base;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -132,7 +133,10 @@ namespace SysBot.Pokemon.Discord
 
             var game = SysCordInstance.Settings.BotGameStatus;
             if (!string.IsNullOrWhiteSpace(game))
-                await _client.SetGameAsync(game).ConfigureAwait(false);
+            {
+                string gameText = $"{Hub.Config.Discord.BotGameStatus.Replace("{0}", $"Queue is Empty")}";
+                await _client.SetGameAsync(gameText).ConfigureAwait(false);
+            }
 
             var app = await _client.GetApplicationInfoAsync().ConfigureAwait(false);
             SysCordInstance.Manager.Owner = app.Owner.Id;
@@ -172,6 +176,13 @@ namespace SysBot.Pokemon.Discord
             // We don't want the bot to respond to itself or other bots.
             if (msg.Author.Id == _client.CurrentUser.Id || msg.Author.IsBot)
                 return;
+
+            var context = new SocketCommandContext(_client, msg);
+            bool timedMsg = TryTimedMessage(msg);
+            var mgr = SysCordInstance.Manager;
+
+            if (timedMsg && mgr.WhitelistedChannels.Contains(msg.Channel.Id))
+                await context.Channel.SendMessageAsync(Hub.Config.Discord.TimedMessage.Replace("{0}", "\n")).ConfigureAwait(false);
 
             // Create a number to track where the prefix ends and the command begins
             int pos = 0;
@@ -229,6 +240,46 @@ namespace SysBot.Pokemon.Discord
             if (!result.IsSuccess)
                 await msg.Channel.SendMessageAsync(result.ErrorReason).ConfigureAwait(false);
             return true;
+        }
+
+        private bool TryTimedMessage(SocketUserMessage msg)
+        {
+            if (Hub.Config.Discord.TimedMessage == string.Empty) // Disables this module if the message is blank in the Hub
+                return false;
+
+            if (Hub.Config.Discord.TimedMessagesTimer < 0)
+                Hub.Config.Discord.TimedMessagesTimer = default;
+
+            string filePath = $"TimedMessages.txt";
+
+            if (!System.IO.File.Exists(filePath))
+                System.IO.File.Create(filePath).Close();
+
+            System.IO.StreamReader reader = new System.IO.StreamReader(filePath);
+            var content = reader.ReadToEnd();
+            reader.Close();
+
+            var id = $"{msg.Channel.Id}";
+            var parse = System.Text.RegularExpressions.Regex.Match(content, @"(" + id + @") - (\S*\ \S*\ \w*)", System.Text.RegularExpressions.RegexOptions.Multiline);
+            DateTime.TryParse(parse.Groups[2].Value, out DateTime time);
+            var timer = time.AddMinutes(Hub.Config.Discord.TimedMessagesTimer);
+
+            if (content.Contains(id) && DateTime.Now < timer)
+                return false;
+            else
+            {
+                if (content.Contains(id))
+                {
+                    content = content.Replace(parse.Groups[0].Value, $"{id} - {DateTime.Now}").TrimEnd();
+                    System.IO.StreamWriter writer = new System.IO.StreamWriter(filePath);
+                    writer.WriteLine(content);
+                    writer.Close();
+                }
+                System.IO.File.AppendAllText(filePath, $"{id} - {DateTime.Now}{Environment.NewLine}");
+
+                return true;
+            }
+                
         }
 
         private async Task MonitorStatusAsync(CancellationToken token)

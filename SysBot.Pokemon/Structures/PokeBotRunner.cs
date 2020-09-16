@@ -95,6 +95,8 @@ namespace SysBot.Pokemon
             {
                 case PokeRoutineType.Idle:
                 case PokeRoutineType.SurpriseTrade:
+                case PokeRoutineType.LanTrade:
+                case PokeRoutineType.LanRoll:
                 case PokeRoutineType.FlexTrade:
                 case PokeRoutineType.LinkTrade:
                 case PokeRoutineType.Clone:

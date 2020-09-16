@@ -1,4 +1,5 @@
-﻿using PKHeX.Core;
+﻿using NLog.Fluent;
+using PKHeX.Core;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +15,8 @@ namespace SysBot.Pokemon
         private readonly PokeTradeQueue<T> FixOT = new PokeTradeQueue<T>(PokeTradeType.FixOT);
         private readonly PokeTradeQueue<T> EggRoll = new PokeTradeQueue<T>(PokeTradeType.EggRoll);
         private readonly PokeTradeQueue<T> Dump = new PokeTradeQueue<T>(PokeTradeType.Dump);
+        private readonly PokeTradeQueue<T> LanRoll = new PokeTradeQueue<T>(PokeTradeType.LanRoll);
+        private readonly PokeTradeQueue<T> LanTrade = new PokeTradeQueue<T>(PokeTradeType.LanTrade);
         public readonly TradeQueueInfo<T> Info;
         public readonly PokeTradeQueue<T>[] AllQueues;
 
@@ -21,7 +24,7 @@ namespace SysBot.Pokemon
         {
             Hub = hub;
             Info = new TradeQueueInfo<T>(hub);
-            AllQueues = new[] { Seed, Dump, Clone, FixOT, EggRoll, Trade, };
+            AllQueues = new[] { Seed, Dump, Clone, FixOT, EggRoll, LanRoll, LanTrade, Trade, };
         }
 
         public PokeTradeQueue<T> GetQueue(PokeRoutineType type)
@@ -33,6 +36,8 @@ namespace SysBot.Pokemon
                 PokeRoutineType.FixOT => FixOT,
                 PokeRoutineType.EggRoll => EggRoll,
                 PokeRoutineType.Dump => Dump,
+                PokeRoutineType.LanRoll => LanRoll,
+                PokeRoutineType.LanTrade => LanTrade,
                 _ => Trade,
             };
         }
@@ -56,7 +61,7 @@ namespace SysBot.Pokemon
             var random = Hub.Ledy.Pool.GetRandomPoke();
             var code = cfg.RandomCode ? Hub.Config.Trade.GetRandomTradeCode() : cfg.TradeCode;
             var trainer = new PokeTradeTrainerInfo("Random Distribution");
-            detail = new PokeTradeDetail<T>(random, trainer, PokeTradeHub<T>.LogNotifier, PokeTradeType.Random, code);
+            detail = new PokeTradeDetail<T>(random, trainer, PokeTradeHub<T>.LogNotifier, PokeTradeType.Random, code, detail.DiscordUserId);
             return true;
         }
 

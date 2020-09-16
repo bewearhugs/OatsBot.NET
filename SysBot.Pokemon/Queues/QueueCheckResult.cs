@@ -10,10 +10,11 @@ namespace SysBot.Pokemon
         public readonly int OverallPosition;
         public readonly int QueueCount;
         public readonly int OverallQueueCount;
+        public readonly PokeTradeHub<T>? Hub;
 
         public static readonly QueueCheckResult<T> None = new QueueCheckResult<T>();
 
-        public QueueCheckResult(bool inQueue = false, TradeEntry<T>? detail = default, int position = -1, int overallPosition = -1, int queueCount = -1, int overallQueueCount = -1)
+        public QueueCheckResult(bool inQueue = false, TradeEntry<T>? detail = default, int position = -1, int overallPosition = -1, int queueCount = -1, int overallQueueCount = -1, PokeTradeHub<T>? hub = null)
         {
             InQueue = inQueue;
             Detail = detail;
@@ -21,6 +22,7 @@ namespace SysBot.Pokemon
             OverallPosition = overallPosition;
             QueueCount = queueCount;
             OverallQueueCount = overallQueueCount;
+            Hub = hub;
         }
 
         public string GetMessage()
@@ -28,11 +30,18 @@ namespace SysBot.Pokemon
             if (!InQueue || Detail is null)
                 return "You are not in the queue.";
             var position = $"{Position}/{QueueCount}";
-            var overallPosition = $"{OverallPosition}/{OverallQueueCount}";
-            var msg = $"You are in the {Detail.Type} queue! Position per Queue: [{Detail.Type}: {position}; Overall: {overallPosition}] (ID {Detail.Trade.ID})";
+            string overallPosition;
+            if (QueueCount != OverallQueueCount)
+                if (Detail.Type == PokeRoutineType.SeedCheck && Hub.Config.Queues.FlexMode == FlexYieldMode.LessCheatyFirst)
+                    overallPosition = $" | __Overall: {Position}/{OverallQueueCount}__";
+                else
+                    overallPosition = $" | __Overall: {OverallPosition}/{OverallQueueCount}__";
+            else
+                overallPosition = $"";
+            var msg = $"You are in the **{Detail.Type}** queue! Position: __{Detail.Type}: {position}__{overallPosition} (ID {Detail.Trade.ID})";
             var pk = Detail.Trade.TradeData;
             if (pk.Species != 0)
-                msg += $", Receiving: {(Species)Detail.Trade.TradeData.Species}";
+                msg += $". Receiving: {(Species)Detail.Trade.TradeData.Species}";
             return msg;
         }
     }

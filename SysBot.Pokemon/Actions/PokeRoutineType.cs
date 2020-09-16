@@ -6,6 +6,9 @@
 
         SurpriseTrade,
 
+        LanTrade,
+        LanRoll,
+
         FlexTrade,
         LinkTrade,
         SeedCheck,
@@ -13,7 +16,6 @@
         FixOT,
         EggRoll,
         Dump,
-        LanTrade,
 
         EggFetch,
         FossilBot,

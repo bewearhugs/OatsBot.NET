@@ -2,6 +2,8 @@
 using PKHeX.Core.Searching;
 using SysBot.Base;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SysBot.Base.SwitchButton;
@@ -237,6 +239,13 @@ namespace SysBot.Pokemon
             var TrainerName = await GetTradePartnerName(TradeMethod.LinkTrade, token).ConfigureAwait(false);
             Log($"Found Trading Partner: {TrainerName}...");
 
+            if (GetAltAccount(poke, TrainerName) != "")
+            {
+                Log($"Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
+
+                poke.SendNotification(this, $"{Hub.Config.Discord.AltDetectionMessage}");
+            }
+
             if (!await IsInBox(token).ConfigureAwait(false))
             {
                 await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
@@ -314,7 +323,7 @@ namespace SysBot.Pokemon
                 var la = new LegalityAnalysis(clone);
                 if (!la.Valid && Hub.Config.Legality.VerifyLegality)
                 {
-                    Log($"FixAd request has detected an invalid Pokémon: {(Species)clone.Species}");
+                    Log($"FixOT request has detected an invalid Pokémon: {(Species)clone.Species}");
                     if (DumpSetting.Dump)
                         DumpPokemon(DumpSetting.DumpFolder, "hacked", clone);
 
@@ -724,6 +733,38 @@ namespace SysBot.Pokemon
         {
             var oldEC = await Connection.ReadBytesAsync(offset, 4, token).ConfigureAwait(false);
             return await ReadUntilChanged(offset, oldEC, waitms, waitInterval, false, token).ConfigureAwait(false);
+        }
+
+        private string GetAltAccount(PokeTradeDetail<PK8> poke, string TrainerName)
+        {
+            if (Hub.Config.Discord.AltDetectionMessage == string.Empty)
+                return "";
+
+            string folderPath = @"AltDetection\";
+            string filePath = @"AltDetection\" + TrainerName + ".txt";
+
+            if (!System.IO.Directory.Exists(folderPath))
+                System.IO.Directory.CreateDirectory(folderPath);
+
+            if (!System.IO.File.Exists(filePath))
+                System.IO.File.Create(filePath).Close();
+
+            List<string> content = System.IO.File.ReadAllLines(filePath).ToList();
+
+            var id = poke.DiscordUserId;
+
+            if (content.Count == 0)
+            {
+                content.Add($"{id}");
+            }
+            else if(content[0] != id.ToString())
+            {
+                return $"{content[0]}";
+            }
+
+            System.IO.File.WriteAllLines(filePath, content);
+
+            return "";
         }
     }
 }
