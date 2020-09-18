@@ -229,27 +229,14 @@ namespace SysBot.Pokemon.Discord
 
                 if (pkm.AltForm != 0)
                 {
-                    if (pkm.Species == 27)
-                        pkm.RelearnMove3 = 10;
-                    else if (pkm.Species == 37)
-                        pkm.RelearnMove4 = 39;
-                    else if (pkm.Species == 52)
+                    switch (pkm.Species)
                     {
-                        pkm.RelearnMove2 = 252;
-                        pkm.RelearnMove3 = 45;
-                    }
-                    else if (pkm.Species == 83)
-                    {
-                        pkm.RelearnMove1 = 64;
-                        pkm.RelearnMove4 = 28;
-                    }
-                    else if (pkm.Species == 222)
-                        pkm.RelearnMove1 = 33;
-                    else if (pkm.Species == 263)
-                    {
-                        pkm.RelearnMove2 = 43;
-                        pkm.RelearnMove3 = 0;
-                        pkm.RelearnMove4 = 0;
+                        case 27: pkm.RelearnMove3 = 10; break;
+                        case 37: pkm.RelearnMove4 = 39; break;
+                        case 52: pkm.RelearnMove2 = 252; pkm.RelearnMove3 = 45; break;
+                        case 83: pkm.RelearnMove1 = 64; pkm.RelearnMove4 = 28; break;
+                        case 222: pkm.RelearnMove1 = 33; break;
+                        case 263: pkm.RelearnMove2 = 43; pkm.RelearnMove3 = 0; pkm.RelearnMove4 = 0; break;
                     }
                 }
             }
@@ -261,14 +248,12 @@ namespace SysBot.Pokemon.Discord
             pkm.IVs = pkm.SetRandomIVs(3);
             BallApplicator.ApplyBallLegalRandom(pkm);
 
-            if (shinyOdds[shinyRng] == 3)
+            switch (shinyOdds[shinyRng])
             {
-                CommonEdits.SetShiny(pkm, Shiny.Never);
-                pkm.SetUnshiny();
+                case 3: CommonEdits.SetShiny(pkm, Shiny.Never); pkm.SetUnshiny(); break;
+                case 5: CommonEdits.SetShiny(pkm, Shiny.AlwaysStar); break;
+                case 6: CommonEdits.SetShiny(pkm, Shiny.AlwaysSquare); break;
             }
-            else if (shinyOdds[shinyRng] == 5)
-                CommonEdits.SetShiny(pkm, Shiny.AlwaysStar);
-            else CommonEdits.SetShiny(pkm, Shiny.AlwaysSquare);
 
             var la = new LegalityAnalysis(pkm);
             var spec = GameInfo.Strings.Species[template.Species];

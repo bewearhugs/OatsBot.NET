@@ -17,9 +17,8 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
         [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
         public async Task LanRollAsync()
         {
-            var id = $"{Context.User.Id}";
-
             var code = Info.GetRandomTradeCode();
+
             int[] existantMon =
                 { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 25, 26, 27, 28, 35, 36, 37, 38, 39,
                   40, 43, 44, 45, 50, 51, 52, 53, 54, 55, 58, 59, 60, 61, 62, 63, 64, 65, 66,
@@ -57,6 +56,27 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                   864, 865, 866, 867, 868, 869, 870, 871, 872, 873, 874, 875, 876, 877, 878,
                   879, 880, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892 };
 
+            var rng = new System.Random();
+            var set = new ShowdownSet($"Egg({SpeciesName.GetSpeciesName(rng.Next(new Zukan8Index(Zukan8Type.None, 1).Index, GameUtil.GetMaxSpeciesID(GameVersion.SWSH)), 2)})");
+            while (!existantMon.ToList().Contains(set.Species))
+                set = new ShowdownSet($"Egg({SpeciesName.GetSpeciesName(rng.Next(new Zukan8Index(Zukan8Type.None, 1).Index, GameUtil.GetMaxSpeciesID(GameVersion.SWSH)), 2)})");
+
+            var template = AutoLegalityWrapper.GetTemplate(set);
+            var sav = AutoLegalityWrapper.GetTrainerInfo(8);
+            var pkm = (PK8)sav.GetLegal(template, out _);
+
+            LanRollTrade(pkm);
+
+            pkm.ClearRecordFlags();
+            pkm.GetSuggestedRelearnMoves();
+
+            pkm.ResetPartyStats();
+            var sudo = Context.User.GetIsSudo();
+            await Context.AddToQueueAsync(code, Context.User.Username, sudo, pkm, PokeRoutineType.LanTrade, PokeTradeType.LanRoll).ConfigureAwait(false);
+        }
+
+        public static void LanRollTrade(PK8 pkm)
+        {
             int[] regional = { 26, 27, 28, 37, 38, 50, 51, 52, 53, 77, 78, 79, 80, 83, 103, 105, 110, 122, 199, 222, 263, 264, 554, 555, 562, 618 };
 
             int[] shinyOdds = { 3, 3, 3, 3, 3, 5, 5, 5, 5, 5,
@@ -67,13 +87,6 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
 
             var rng = new System.Random();
             int shinyRng = rng.Next(0, shinyOdds.Length);
-            var set = new ShowdownSet($"Egg({SpeciesName.GetSpeciesName(rng.Next(new Zukan8Index(Zukan8Type.None, 1).Index, GameUtil.GetMaxSpeciesID(GameVersion.SWSH)), 2)})");
-            while (!existantMon.ToList().Contains(set.Species))
-                set = new ShowdownSet($"Egg({SpeciesName.GetSpeciesName(rng.Next(new Zukan8Index(Zukan8Type.None, 1).Index, GameUtil.GetMaxSpeciesID(GameVersion.SWSH)), 2)})");
-
-            var template = AutoLegalityWrapper.GetTemplate(set);
-            var sav = AutoLegalityWrapper.GetTrainerInfo(8);
-            var pkm = (PK8)sav.GetLegal(template, out _);
 
             if (regional.ToList().Contains(pkm.Species)) // Randomize Regional Form
             {
@@ -153,6 +166,10 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.Move4 = moveRng4;
             MoveApplicator.SetMaximumPPCurrent(pkm);
 
+            pkm.HeldItem = rng.Next(1, 926); // random held item
+            while (!ItemRestrictions.IsHeldItemAllowed(pkm)) // checks for non-existing items
+                pkm.HeldItem = rng.Next(1, 926);
+
             pkm.CurrentLevel = rng.Next(1, 101);
             pkm.IsEgg = true;
             pkm.Egg_Location = 60002;
@@ -175,34 +192,12 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.Markings = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
             pkm.SetRibbon(rng.Next(53, 98), true); //ribbons 53-97 are marks
 
-            pkm.HeldItem = rng.Next(1, 926); // random held item
-            while (!ItemRestrictions.IsHeldItemAllowed(pkm)) // checks for non-existing items
-                pkm.HeldItem = rng.Next(1, 926);
-
-            pkm.ClearRecordFlags();
-            pkm.GetSuggestedRelearnMoves();
-
-            if (shinyOdds[shinyRng] == 3)
+            switch (shinyOdds[shinyRng])
             {
-                CommonEdits.SetShiny(pkm, Shiny.Never);
-                pkm.SetUnshiny();
+                case 3: CommonEdits.SetShiny(pkm, Shiny.Never); pkm.SetUnshiny(); break;
+                case 5: CommonEdits.SetShiny(pkm, Shiny.AlwaysStar); break;
+                case 6: CommonEdits.SetShiny(pkm, Shiny.AlwaysSquare); break;
             }
-            else if (shinyOdds[shinyRng] == 5)
-                CommonEdits.SetShiny(pkm, Shiny.AlwaysStar);
-            else CommonEdits.SetShiny(pkm, Shiny.AlwaysSquare);
-
-            /*
-            await Context.User.SendMessageAsync($"__This command is in Alpha. If one of your randomly generated attributes doesn't exist in Sword and Shield, please let {Context.Client.GetUser(261121732704862208).Mention} know.__\n" +
-                $">Moves (respectively): IDs -> {moveRng1}, {moveRng2}, {moveRng3}, {moveRng4}\n" +
-                $">Item: ID -> {pkm.HeldItem}\n" +
-                $">Ability: ID -> {pkm.Ability}\n" +
-                $">Mark: ID -> {pkm.GetRibbonByte(1)}\n" +
-                $">Species: ID -> {pkm.Species}\n" +
-                $"\n*Please tell {Context.Client.GetUser(261121732704862208).Mention} the ID and what attribute, if it doesn't exist.*");*/
-
-            pkm.ResetPartyStats();
-            var sudo = Context.User.GetIsSudo();
-            await Context.AddToQueueAsync(code, Context.User.Username, sudo, pkm, PokeRoutineType.LanTrade, PokeTradeType.LanRoll).ConfigureAwait(false);
         }
     }
 }
