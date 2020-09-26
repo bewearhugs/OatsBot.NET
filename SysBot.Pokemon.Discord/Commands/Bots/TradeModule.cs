@@ -344,7 +344,7 @@ namespace SysBot.Pokemon.Discord
             else if (pk8.Nickname.Contains(dittoLang[8]))
                 pk8.Language = (int)LanguageID.ChineseT;
 
-            pk8.MetDate = System.DateTime.Parse("2020/10/20");
+            pk8.MetDate = System.DateTime.Now.Date;
             pk8.StatNature = pk8.Nature;
             pk8.SetAbility(7);
             pk8.SetAbilityIndex(1);
@@ -364,14 +364,12 @@ namespace SysBot.Pokemon.Discord
         {
             pk8.IsEgg = true;
             pk8.Egg_Location = 60002;
-            pk8.EggMetDate = System.DateTime.Parse("2020/10/20");
             pk8.HeldItem = 0;
             pk8.CurrentLevel = 1;
             pk8.EXP = 0;
             pk8.DynamaxLevel = 0;
             pk8.Met_Level = 1;
             pk8.Met_Location = 0;
-            pk8.MetDate = System.DateTime.Parse("2020/10/20");
             pk8.CurrentHandler = 0;
             pk8.OT_Friendship = 1;
             pk8.HT_Name = "";

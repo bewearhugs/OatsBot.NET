@@ -56,11 +56,12 @@ namespace SysBot.Pokemon.Discord
                 {
                     x.Name = module.Name;
                     x.Value = description;
-                    x.IsInline = false;
+                    x.IsInline = true;
                 });
             }
 
-            await ReplyAsync("Help has arrived!", false, builder.Build()).ConfigureAwait(false);
+            await ReplyAsync("Help has arrived! Check your DMs!");
+            await Context.User.SendMessageAsync("", false, builder.Build()).ConfigureAwait(false);
         }
 
         [Command("help")]

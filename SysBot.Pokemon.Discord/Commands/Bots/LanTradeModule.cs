@@ -173,12 +173,11 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.CurrentLevel = rng.Next(1, 101);
             pkm.IsEgg = true;
             pkm.Egg_Location = 60002;
-            pkm.EggMetDate = System.DateTime.Today;
-            pkm.HeldItem = 0;
+            pkm.EggMetDate = System.DateTime.Now.Date;
             pkm.DynamaxLevel = 0;
             pkm.Met_Level = 1;
             pkm.Met_Location = 0;
-            pkm.MetDate = System.DateTime.Today;
+            pkm.MetDate = System.DateTime.Now.Date;
             pkm.CurrentHandler = 0;
             pkm.OT_Friendship = 1;
             pkm.HT_Name = "";
