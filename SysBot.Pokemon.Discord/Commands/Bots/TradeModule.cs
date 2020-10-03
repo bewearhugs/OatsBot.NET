@@ -270,6 +270,16 @@ namespace SysBot.Pokemon.Discord
             await Context.AddToQueueAsync(code, Context.User.Username, sudo, pkm, PokeRoutineType.EggRoll, PokeTradeType.EggRoll).ConfigureAwait(false);
         }
 
+        [Command("getSID")]
+        [Alias("sid", "whatsMySID")]
+        [Summary("The bot returns the SID of a Pokémon that is sent to it.")]
+        public async Task GetSIDAsync()
+        {
+            var code = Info.GetRandomTradeCode();
+            var sudo = Context.User.GetIsSudo();
+            await Context.AddToQueueAsync(code, Context.User.Username, sudo, new PK8(), PokeRoutineType.LinkTrade, PokeTradeType.GetSID).ConfigureAwait(false);
+        }
+
         private async Task AddTradeToQueueAsync(int code, string trainerName, PK8 pk8, bool sudo)
         {
             if (!pk8.CanBeTraded() || !IsItemMule(pk8))

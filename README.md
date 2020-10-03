@@ -5,7 +5,7 @@
 
 For support on this fork of SysBot.NET, join this Discord!
 
-[<img src="https://discordapp.com/api/guilds/749855989209235476/widget.png?style=banner2">](https://discord.gg/KtaKUrF)
+[<img src="https://discordapp.com/api/guilds/676238041907724322/widget.png?style=banner2">](https://discord.gg/FPdYEPh)
 
 For support on the original SysBot.NET, join this Discord!
 

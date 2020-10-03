@@ -29,11 +29,11 @@ namespace SysBot.Pokemon.YouTube
             {
                 try
                 {
-                    var connection = await YouTubeConnection.ConnectViaLocalhostOAuthBrowser(Settings.ClientID, Settings.ClientSecret, Scopes.scopes, true);
+                    var connection = await YouTubeConnection.ConnectViaLocalhostOAuthBrowser(Settings.ClientID, Settings.ClientSecret, Scopes.scopes, true).ConfigureAwait(false);
                     if (connection == null)
                         return;
 
-                    var channel = await connection.Channels.GetChannelByID(Settings.ChannelID);
+                    var channel = await connection.Channels.GetChannelByID(Settings.ChannelID).ConfigureAwait(false);
                     if (channel == null)
                         return;
 
@@ -41,8 +41,8 @@ namespace SysBot.Pokemon.YouTube
                     client.OnMessagesReceived += Client_OnMessagesReceived;
                     EchoUtil.Forwarders.Add(msg => client.SendMessage(msg));
 
-                    if (await client.Connect())
-                        await Task.Delay(-1);
+                    if (await client.Connect().ConfigureAwait(false))
+                        await Task.Delay(-1).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -55,18 +55,18 @@ namespace SysBot.Pokemon.YouTube
         {
             Task.Run(async () =>
             {
-                await client.SendMessage("5...");
+                await client.SendMessage("5...").ConfigureAwait(false);
                 await Task.Delay(1_000).ConfigureAwait(false);
-                await client.SendMessage("4...");
+                await client.SendMessage("4...").ConfigureAwait(false);
                 await Task.Delay(1_000).ConfigureAwait(false);
-                await client.SendMessage("3...");
+                await client.SendMessage("3...").ConfigureAwait(false);
                 await Task.Delay(1_000).ConfigureAwait(false);
-                await client.SendMessage("2...");
+                await client.SendMessage("2...").ConfigureAwait(false);
                 await Task.Delay(1_000).ConfigureAwait(false);
-                await client.SendMessage("1...");
+                await client.SendMessage("1...").ConfigureAwait(false);
                 await Task.Delay(1_000).ConfigureAwait(false);
                 if (!string.IsNullOrWhiteSpace(message))
-                    await client.SendMessage(message);
+                    await client.SendMessage(message).ConfigureAwait(false);
             });
         }
 

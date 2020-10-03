@@ -156,7 +156,12 @@ namespace SysBot.Pokemon
 
             var pkm = poke.TradeData;
             if (pkm.Species != 0)
+            {
+                if (CheckForAdOT(pkm) && !Hub.Config.Trade.AllowAdOT)
+                    pkm.OT_Name = $"{Hub.Config.Legality.GenerateOT}";
+
                 await SetBoxPokemon(pkm, InjectBox, InjectSlot, token, sav).ConfigureAwait(false);
+            }
 
             if (!await IsOnOverworld(Hub.Config, token).ConfigureAwait(false))
             {
@@ -222,7 +227,7 @@ namespace SysBot.Pokemon
 
             // Wait for a Trainer...
             Log("Waiting for trainer...");
-            bool partnerFound = await WaitForPokemonChanged(LinkTradePartnerPokemonOffset, Hub.Config.Trade.TradeWaitTime * 1_000, 0_200, token);
+            bool partnerFound = await WaitForPokemonChanged(LinkTradePartnerPokemonOffset, Hub.Config.Trade.TradeWaitTime * 1_000, 0_200, token).ConfigureAwait(false);
 
             if (token.IsCancellationRequested)
                 return PokeTradeResult.Aborted;
@@ -240,11 +245,7 @@ namespace SysBot.Pokemon
             Log($"Found Trading Partner: {TrainerName}...");
 
             if (GetAltAccount(poke, TrainerName) != "")
-            {
                 Log($"Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
-
-                poke.SendNotification(this, $"{Hub.Config.Discord.AltDetectionMessage}");
-            }
 
             if (!await IsInBox(token).ConfigureAwait(false))
             {
@@ -279,6 +280,11 @@ namespace SysBot.Pokemon
                 return await EndSeedCheckTradeAsync(poke, pk, token).ConfigureAwait(false);
             }
 
+            if (poke.Type == PokeTradeType.GetSID)
+            {
+                return await EndGetSIDTradeAsync(poke, pk, token).ConfigureAwait(false);
+            }
+
             if (poke.Type == PokeTradeType.Random) // distribution
             {
                 // Allow the trade partner to do a Ledy swap.
@@ -300,10 +306,8 @@ namespace SysBot.Pokemon
             else if (poke.Type == PokeTradeType.FixOT)
             {
                 var clone = (PK8)pk.Clone();
-                var adOT = System.Text.RegularExpressions.Regex.Match(clone.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != ""
-                    || System.Text.RegularExpressions.Regex.Match(clone.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != "";
 
-                if (adOT && clone.OT_Name != $"{TrainerName}")
+                if (CheckForAdOT(clone) && clone.OT_Name != $"{TrainerName}")
                 {
                     clone.OT_Name = $"{TrainerName}";
                     clone.ClearNickname();
@@ -409,6 +413,8 @@ namespace SysBot.Pokemon
             await Click(A, 3_000, token).ConfigureAwait(false);
             for (int i = 0; i < 5; i++)
                 await Click(A, 1_500, token).ConfigureAwait(false);
+
+            Log("In Trade Animation...");
 
             delay_count = 0;
             while (!await IsInBox(token).ConfigureAwait(false))
@@ -662,6 +668,20 @@ namespace SysBot.Pokemon
             return PokeTradeResult.Success;
         }
 
+        private async Task<PokeTradeResult> EndGetSIDTradeAsync(PokeTradeDetail<PK8> detail, PK8 pk, CancellationToken token)
+        {
+            await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
+
+            detail.TradeFinished(this, pk);
+
+            if (DumpSetting.Dump && !string.IsNullOrEmpty(DumpSetting.DumpFolder))
+                DumpPokemon(DumpSetting.DumpFolder, "getsid", pk);
+
+            detail.SendNotification(this, $"The OT, TID, and SID of the {pk.Species} you showed is OT: **{pk.OT_Name}**, TID: **{pk.DisplayTID}**, and SID: **{pk.SID}**.");
+
+            return PokeTradeResult.Success;
+        }
+
         private void ReplyWithSeedCheckResults(PokeTradeDetail<PK8> detail, PK8 result)
         {
             detail.SendNotification(this, "Calculating your seed(s)...");
@@ -706,6 +726,17 @@ namespace SysBot.Pokemon
             Log($"Barrier sync timed out after {timeoutAfter} seconds. Continuing.");
         }
 
+        private bool CheckForAdOT(PK8 pkm)
+        {
+            var adOT = System.Text.RegularExpressions.Regex.Match(pkm.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != ""
+                    || System.Text.RegularExpressions.Regex.Match(pkm.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != "";
+
+            if (adOT)
+                return true;
+            else
+                return false;
+        }
+
         /// <summary>
         /// Checks if the barrier needs to get updated to consider this bot.
         /// If it should be considered, it adds it to the barrier if it is not already added.
@@ -737,8 +768,15 @@ namespace SysBot.Pokemon
 
         private string GetAltAccount(PokeTradeDetail<PK8> poke, string TrainerName)
         {
-            if (Hub.Config.Discord.AltDetectionMessage == string.Empty)
+            if (!Hub.Config.Discord.AltDetection)
                 return "";
+
+            string invalid = new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars());
+
+            foreach (char c in invalid)
+            {
+                TrainerName = TrainerName.Replace(c.ToString(), "");
+            }
 
             string folderPath = @"AltDetection\";
             string filePath = @"AltDetection\" + TrainerName + ".txt";

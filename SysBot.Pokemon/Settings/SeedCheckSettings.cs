@@ -19,11 +19,11 @@ namespace SysBot.Pokemon
         [Category(FeatureToggle), Description("When enabled, Seed Check results will be posted to a Discord channel and DMs.")]
         public bool PostResultToBoth { get; set; }
     }
-}
 
-public enum SeedCheckResults
-{
-    ClosestOnly,            // Only gets the first shiny
-    FirstStarAndSquare,     // Gets the first star shiny and first square shiny
-    FirstThree,             // Gets the first three frames
+    public enum SeedCheckResults
+    {
+        ClosestOnly,            // Only gets the first shiny
+        FirstStarAndSquare,     // Gets the first star shiny and first square shiny
+        FirstThree,             // Gets the first three frames
+    }
 }
