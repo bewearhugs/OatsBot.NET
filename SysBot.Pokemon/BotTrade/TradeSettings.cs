@@ -43,9 +43,6 @@ namespace SysBot.Pokemon
         [Category(TradeCode), Description("Enter either direct picture or gif links, or file names with extensions. For example, file1.png, file2.jpg, etc.")]
         public string MemeFileNames { get; set; } = string.Empty;
 
-        [Category(TradeCode), Description("Enable people to gen Pokémon with OT with advertisements.")]
-        public bool AllowAdOT { get; set; } = true;
-
         [Category(TradeCode), Description("Enter Channel ID(s) where $roll should be active, or leave blank.")]
         public string EggRollChannels { get; set; } = string.Empty;
 

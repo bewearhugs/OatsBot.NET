@@ -26,8 +26,6 @@ namespace SysBot.Pokemon.Discord
             if (SysCordInstance.Self.Hub.Config.Trade.DittoTrade && set.Species == 132)
                 TradeModule.DittoTrade(pkm);
 
-            pkm.OT_Name = !OT.Equals(string.Empty) && !pkm.FatefulEncounter ? OT : pkm.OT_Name;
-            OT = string.Empty;
             var la = new LegalityAnalysis(pkm);
             var spec = GameInfo.Strings.Species[template.Species];
 

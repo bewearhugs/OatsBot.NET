@@ -157,7 +157,7 @@ namespace SysBot.Pokemon
             var pkm = poke.TradeData;
             if (pkm.Species != 0)
             {
-                if (CheckForAdOT(pkm) && !Hub.Config.Trade.AllowAdOT)
+                if (CheckForAdOT(pkm) && !Hub.Config.Legality.AllowAdOT)
                     pkm.OT_Name = $"{Hub.Config.Legality.GenerateOT}";
 
                 await SetBoxPokemon(pkm, InjectBox, InjectSlot, token, sav).ConfigureAwait(false);

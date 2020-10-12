@@ -13,6 +13,16 @@
         HorizontalLine,
 
         /// <summary>
+        /// Bot will move from top left to bottom right in a diagonal path to encounter Pokémon
+        /// </summary>
+        LeftToRightDiagonal,
+
+        /// <summary>
+        /// Bot will move from top right to bottom left in a diagonal path to encounter Pokémon
+        /// </summary>
+        RightToLeftDiagonal,
+
+        /// <summary>
         /// Bot will soft reset Eternatus
         /// </summary>
         Eternatus,

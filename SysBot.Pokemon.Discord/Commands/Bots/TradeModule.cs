@@ -83,9 +83,6 @@ namespace SysBot.Pokemon.Discord
         {
             const int gen = 8;
             content = ReusableActions.StripCodeBlock(content);
-            SpecifyOT(content, out string specifyOT);
-            if (specifyOT != string.Empty)
-                content = System.Text.RegularExpressions.Regex.Replace(content, @"OT:(\S*\s?\S*\s?\S*)?$\W?", "", System.Text.RegularExpressions.RegexOptions.Multiline);
 
             var set = new ShowdownSet(content);
             var template = AutoLegalityWrapper.GetTemplate(set);
@@ -99,8 +96,6 @@ namespace SysBot.Pokemon.Discord
 
             var sav = AutoLegalityWrapper.GetTrainerInfo(gen);
             var pkm = sav.GetLegal(template, out _);
-            if (specifyOT != string.Empty)
-                pkm.OT_Name = specifyOT;
 
 
             var la = new LegalityAnalysis(pkm);
@@ -332,27 +327,7 @@ namespace SysBot.Pokemon.Discord
             if (pk8.IsNicknamed == false)
                 return;
 
-            var dittoLang = new string[] { "JPN", "ENG", "FRE", "ITA", "GER", "ESP", "KOR", "CHS", "CHT" };
             var dittoStats = new string[] { "ATK", "SPE" , "SPA" };
-
-            if (pk8.Nickname.Contains(dittoLang[0]))
-                pk8.Language = (int)LanguageID.Japanese;
-            else if (pk8.Nickname.Contains(dittoLang[1]))
-                pk8.Language = (int)LanguageID.English;
-            else if (pk8.Nickname.Contains(dittoLang[2]))
-                pk8.Language = (int)LanguageID.French;
-            else if (pk8.Nickname.Contains(dittoLang[3]))
-                pk8.Language = (int)LanguageID.Italian;
-            else if (pk8.Nickname.Contains(dittoLang[4]))
-                pk8.Language = (int)LanguageID.German;
-            else if (pk8.Nickname.Contains(dittoLang[5]))
-                pk8.Language = (int)LanguageID.Spanish;
-            else if (pk8.Nickname.Contains(dittoLang[6]))
-                pk8.Language = (int)LanguageID.Korean;
-            else if (pk8.Nickname.Contains(dittoLang[7]))
-                pk8.Language = (int)LanguageID.ChineseS;
-            else if (pk8.Nickname.Contains(dittoLang[8]))
-                pk8.Language = (int)LanguageID.ChineseT;
 
             pk8.MetDate = System.DateTime.Now.Date;
             pk8.StatNature = pk8.Nature;
@@ -364,6 +339,7 @@ namespace SysBot.Pokemon.Discord
             pk8.Met_Location = 154;
             pk8.Ball = 21;
             pk8.IVs = new int[] { 31, pk8.Nickname.Contains(dittoStats[0]) ? 0 : 31, 31, pk8.Nickname.Contains(dittoStats[1]) ? 0 : 31, pk8.Nickname.Contains(dittoStats[2]) ? 0 : 31, 31 };
+            pk8.ClearNickname();
             pk8.SetSuggestedHyperTrainingData();
 
             if (pk8.Nickname.Contains(dittoStats[0]) && pk8.Nickname.Contains(dittoStats[1]))
@@ -397,14 +373,6 @@ namespace SysBot.Pokemon.Discord
             pk8.Move1_PPUps = pk8.Move2_PPUps = pk8.Move3_PPUps = pk8.Move4_PPUps = 0;
             pk8.SetMaximumPPCurrent(pk8.Moves);
             pk8.SetSuggestedHyperTrainingData();
-        }
-
-        public static string SpecifyOT(string content, out string specifyOT)
-        {
-            if (!content.Contains("OT: "))
-                return specifyOT = string.Empty;
-
-            return specifyOT = System.Text.RegularExpressions.Regex.Match(content, @"OT:(.*)?$\W?", System.Text.RegularExpressions.RegexOptions.Multiline).Groups[1].Value.Trim();
         }
     }
 }
