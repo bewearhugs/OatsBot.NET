@@ -87,7 +87,11 @@ namespace SysBot.Pokemon.Discord
 
             Context.User.SendMessageAsync(message).ConfigureAwait(false);
             if (result.Species != 0 && Hub.Config.Discord.ReturnPK8s)
+            {
                 Context.User.SendPKMAsync(result, "Here's what you traded me!").ConfigureAwait(false);
+                Context.User.SendUserPKMAsShowdownSetAsync(result).ConfigureAwait(false);
+            }
+                
 
             if (info.Type == PokeTradeType.EggRoll && Hub.Config.Trade.EggRollCooldown > 0) // Add cooldown if trade completed
             {
