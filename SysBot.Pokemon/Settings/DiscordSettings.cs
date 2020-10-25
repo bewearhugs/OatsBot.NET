@@ -73,8 +73,8 @@ namespace SysBot.Pokemon
         [Category(Operation), Description("Comma separated channel IDs that will echo the log bot data.")]
         public string LoggingChannels { get; set; } = string.Empty;
 
-        [Category(Operation), Description("Detects when an Alternate Discord account is used for the bot.")]
-        public bool AltDetection { get; set; } = false;
+        [Category(Operation), Description("Pings a Role for when an Alt Discord Account is Detected. Leave blank for no Alt Detection.")]
+        public string PingRoleOnAltDetection { get; set; } = string.Empty;
 
         [Category(Operation), Description("Comma separated Logger channel IDs that will log trade start messages.")]
         public string TradeStartingChannels { get; set; } = string.Empty;

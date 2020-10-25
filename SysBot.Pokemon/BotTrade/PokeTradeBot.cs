@@ -245,7 +245,7 @@ namespace SysBot.Pokemon
             Log($"Found Trading Partner: {TrainerName}...");
 
             if (GetAltAccount(poke, TrainerName) != "")
-                Log($"Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
+                Log($"<@{Hub.Config.Discord.PingRoleOnAltDetection}> Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
 
             if (!await IsInBox(token).ConfigureAwait(false))
             {
@@ -278,11 +278,6 @@ namespace SysBot.Pokemon
             {
                 // Immediately exit, we aren't trading anything.
                 return await EndSeedCheckTradeAsync(poke, pk, token).ConfigureAwait(false);
-            }
-
-            if (poke.Type == PokeTradeType.GetSID)
-            {
-                return await EndGetSIDTradeAsync(poke, pk, token).ConfigureAwait(false);
             }
 
             if (poke.Type == PokeTradeType.Random) // distribution
@@ -668,20 +663,6 @@ namespace SysBot.Pokemon
             return PokeTradeResult.Success;
         }
 
-        private async Task<PokeTradeResult> EndGetSIDTradeAsync(PokeTradeDetail<PK8> detail, PK8 pk, CancellationToken token)
-        {
-            await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
-
-            detail.TradeFinished(this, pk);
-
-            if (DumpSetting.Dump && !string.IsNullOrEmpty(DumpSetting.DumpFolder))
-                DumpPokemon(DumpSetting.DumpFolder, "getsid", pk);
-
-            detail.SendNotification(this, $"The OT, TID, and SID of the {pk.Species} you showed is OT: **{pk.OT_Name}**, TID: **{pk.DisplayTID}**, and SID: **{pk.SID}**.");
-
-            return PokeTradeResult.Success;
-        }
-
         private void ReplyWithSeedCheckResults(PokeTradeDetail<PK8> detail, PK8 result)
         {
             detail.SendNotification(this, "Calculating your seed(s)...");
@@ -768,7 +749,7 @@ namespace SysBot.Pokemon
 
         private string GetAltAccount(PokeTradeDetail<PK8> poke, string TrainerName)
         {
-            if (!Hub.Config.Discord.AltDetection)
+            if (Hub.Config.Discord.PingRoleOnAltDetection == string.Empty)
                 return "";
 
             string invalid = new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars());

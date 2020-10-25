@@ -52,6 +52,9 @@ namespace SysBot.Pokemon
         [Category(Generate), Description("Enable people to gen Pokémon with OT with advertisements.")]
         public bool AllowAdOT { get; set; } = true;
 
+        [Category(Generate), Description("Allow users to submit further customization with Batch Editor commands.")]
+        public bool AllowBatchCommands { get; set; } = false;
+
         // Misc
 
         [Category(Misc), Description("Zero out HOME tracker regardless of current tracker value. Applies to user requested PKM files as well.")]

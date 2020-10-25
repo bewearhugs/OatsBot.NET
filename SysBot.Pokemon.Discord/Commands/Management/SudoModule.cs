@@ -1,4 +1,6 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using NLog.LayoutRenderers.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +69,34 @@ namespace SysBot.Pokemon.Discord
                 await ReplyAsync("Done.").ConfigureAwait(false);
             }
             else await ReplyAsync("User with that ID not found.").ConfigureAwait(false);
+        }
+
+        [Command("IGNInfo")]
+        [Summary("Provides a list of all IGNs and their respective Discord IDs")]
+        [RequireSudo]
+        public async Task ListIGNs([Remainder] string ign)
+        {
+            if (ign == string.Empty)
+            {
+                await ReplyAsync("Please provide an In-Game Name.");
+                return;
+            }
+
+            if (!System.IO.Directory.Exists(@"AltDetection\"))
+                System.IO.Directory.CreateDirectory(@"AltDetection\");
+
+            string[] directory = System.IO.Directory.GetFiles(@"AltDetection\");
+
+            foreach (var file in directory)
+            {
+                if (file.Contains(ign))
+                {
+                    List<string> content = System.IO.File.ReadAllLines(file).ToList();
+
+                    await Context.User.SendMessageAsync($"The IGN, {ign}, has this Discord ID tied to it: {content[0]}").ConfigureAwait(false);
+                    break;
+                }
+            }
         }
 
         [Command("clearAlt")]

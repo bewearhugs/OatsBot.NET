@@ -34,6 +34,7 @@ namespace SysBot.Pokemon
             APILegality.UseXOROSHIRO = cfg.UseXOROSHIRO;
             Legalizer.EnableEasterEggs = cfg.EnableEasterEggs;
             APILegality.AllowTrainerOverride = cfg.AllowTrainerDataOverride;
+            APILegality.AllowBatchCommands = cfg.AllowBatchCommands;
         }
 
         private static void InitializeTrainerDatabase(LegalitySettings cfg)
@@ -86,6 +87,7 @@ namespace SysBot.Pokemon
             {
                 (int)Species.Kyurem when pkm.AltForm != 0 => false,
                 (int)Species.Necrozma when pkm.AltForm != 0 => false,
+                (int)Species.Calyrex when pkm.AltForm != 0 => false,
                 _ => true
             };
         }

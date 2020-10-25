@@ -7,7 +7,6 @@
         Seed,
         Clone,
         FixOT,
-        GetSID,
         EggRoll,
         LanTrade,
         LanRoll,
