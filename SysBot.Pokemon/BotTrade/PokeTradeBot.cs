@@ -245,7 +245,7 @@ namespace SysBot.Pokemon
             Log($"Found Trading Partner: {TrainerName}...");
 
             if (GetAltAccount(poke, TrainerName) != "")
-                Log($"<@{Hub.Config.Discord.PingRoleOnAltDetection}> Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
+                Log($"<@{Hub.Config.Discord.PingUserOnAltDetection}> Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. IGN: {TrainerName} | New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
 
             if (!await IsInBox(token).ConfigureAwait(false))
             {
@@ -749,7 +749,7 @@ namespace SysBot.Pokemon
 
         private string GetAltAccount(PokeTradeDetail<PK8> poke, string TrainerName)
         {
-            if (Hub.Config.Discord.PingRoleOnAltDetection == string.Empty)
+            if (Hub.Config.Discord.PingUserOnAltDetection == string.Empty)
                 return "";
 
             string invalid = new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars());

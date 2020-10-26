@@ -9,6 +9,8 @@ namespace SysBot.Pokemon
         private const string Raid = nameof(Raid);
         private const string Misc = nameof(Misc);
 
+        public override string ToString() => "Timing Settings";
+
         // Opening the game.
         [Category(OpenGame), Description("Extra time in milliseconds to wait for profiles to load when starting the game.")]
         public int ExtraTimeLoadProfile { get; set; } = 0;

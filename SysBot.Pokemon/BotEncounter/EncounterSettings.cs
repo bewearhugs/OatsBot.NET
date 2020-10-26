@@ -16,8 +16,5 @@ namespace SysBot.Pokemon
 
         [Category(Encounter), Description("Length of the delay in between direction switches in milliseconds")]
         public int SwitchDirectionDelay { get; set; } = 2_400;
-
-        [Category(Encounter), Description("Toggle Strong Spawn bot. Needs prior set up (encounter Strong Spawn, run, change date forward to the weather you want, save on its spawn location).")]
-        public bool StrongSpawn { get; set; } = false;
     }
 }

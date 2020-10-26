@@ -48,8 +48,11 @@ namespace SysBot.Pokemon
             {
                 EncounterMode.VerticalLine => WalkInLine(token),
                 EncounterMode.HorizontalLine => WalkInLine(token),
+                EncounterMode.LeftToRightDiagonal => WalkInLine(token),
+                EncounterMode.RightToLeftDiagonal => WalkInLine(token),
                 EncounterMode.Eternatus => DoEternatusEncounter(token),
                 EncounterMode.LegendaryDogs => DoDogEncounter(token),
+                EncounterMode.Regis => DoRegiEncounter(token),
                 _ => WalkInLine(token),
             };
             await task.ConfigureAwait(false);
@@ -62,9 +65,6 @@ namespace SysBot.Pokemon
         {
             while (!token.IsCancellationRequested)
             {
-                if (Hub.Config.Encounter.StrongSpawn)
-                    await StrongSpawn(token).ConfigureAwait(false);
-
                 var attempts = await StepUntilEncounter(token).ConfigureAwait(false);
                 if (attempts < 0) // aborted
                     continue;
@@ -93,7 +93,7 @@ namespace SysBot.Pokemon
                     return;
 
                 Log("Running away...");
-                while (await IsInBattle(token).ConfigureAwait(false) && !Hub.Config.Encounter.StrongSpawn)
+                while (await IsInBattle(token).ConfigureAwait(false))
                     await FleeToOverworld(token).ConfigureAwait(false);
             }
         }
@@ -105,7 +105,7 @@ namespace SysBot.Pokemon
                 await SetStick(LEFT, 0, 20_000, 500, token).ConfigureAwait(false);
                 await ResetStick(token).ConfigureAwait(false);
 
-                var pk = await ReadUntilPresent(WildPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
+                var pk = await ReadUntilPresent(LegendaryPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
                 if (pk != null)
                 {
                     Connection.Log("Invalid data detected. Restarting loop.");
@@ -113,7 +113,7 @@ namespace SysBot.Pokemon
                         return;
                 }
 
-                Connection.Log("Resetting Eternatus by restarting the game");
+                Connection.Log("Resetting Eternatus by restarting the game.");
                 await CloseGame(Hub.Config, token).ConfigureAwait(false);
                 await StartGame(Hub.Config, token).ConfigureAwait(false);
             }
@@ -140,7 +140,7 @@ namespace SysBot.Pokemon
                     await Click(A, 1_000, token).ConfigureAwait(false);
 
                 Log("Encounter started! Checking details...");
-                var pk = await ReadUntilPresent(WildPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
+                var pk = await ReadUntilPresent(LegendaryPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
                 if (pk == null)
                 {
                     Log("Invalid data detected. Restarting loop.");
@@ -166,6 +166,33 @@ namespace SysBot.Pokemon
 
                 // Extra delay to be sure we're fully out of the battle.
                 await Task.Delay(0_250, token).ConfigureAwait(false);
+            }
+        }
+
+        private async Task DoRegiEncounter(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                Log("Looking for new Regi...");
+
+                // Spam through menus until a battle is found.
+                while (!await IsInBattle(token).ConfigureAwait(false))
+                    await Click(A, 0_900, token).ConfigureAwait(false);
+
+                Log("Encounter started! Checking details...");
+                var pk = await ReadUntilPresent(WildPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
+                if (pk == null)
+                {
+                    Log("Invalid data detected. Restarting loop.");
+                    continue;
+                }
+
+                if (await HandleEncounter(pk, true, token).ConfigureAwait(false))
+                    return;
+
+                Log($"Resetting {(Species)pk.Species} by restarting the game.");
+                await CloseGame(Hub.Config, token).ConfigureAwait(false);
+                await StartGame(Hub.Config, token).ConfigureAwait(false);
             }
         }
 
@@ -336,7 +363,7 @@ namespace SysBot.Pokemon
 
         private async Task CheckPokeBallCount(CancellationToken token)
         {
-            if (Hub.Config.StopConditions.CatchEncounter && !Hub.Config.Encounter.StrongSpawn)
+            if (Hub.Config.StopConditions.CatchEncounter)
             {
                 Log("Checking Poké Ball count...");
                 pouchData = await Connection.ReadBytesAsync(PokeBallOffset, 116, token).ConfigureAwait(false);
@@ -349,37 +376,6 @@ namespace SysBot.Pokemon
                     return;
                 }
             }
-        }
-
-        private async Task StrongSpawn(CancellationToken token)
-        {
-            Log("Closing the game!");
-            await Click(HOME, 1_500, token).ConfigureAwait(false);
-            await Click(X, 1_000, token).ConfigureAwait(false);
-            await Click(A, 4_000, token).ConfigureAwait(false); // Closing software prompt
-            Log("Closed out of the game!");
-
-            // Open game and select profile.
-            await Click(A, 1_000, token).ConfigureAwait(false);
-            await Click(A, 1_000, token).ConfigureAwait(false);
-            // If they have DLC on the system and can't use it, requires an UP + A to start the game.
-            // Should be harmless otherwise since they'll be in loading screen.
-            await Click(DUP, 0_600, token).ConfigureAwait(false);
-            await Click(A, 0_600, token).ConfigureAwait(false);
-
-            // Switch Logo lag, skip cutscene, game load screen
-            await Task.Delay(11_000, token).ConfigureAwait(false);
-
-            for (int i = 0; i < 5; i++)
-                await Click(A, 1_000, token).ConfigureAwait(false);
-
-            while (!await IsOnOverworld(Hub.Config, token).ConfigureAwait(false))
-                await Click(A, 1_000, token).ConfigureAwait(false);
-
-            Log("Restarted the game!");
-
-            while (!await IsInBattle(token).ConfigureAwait(false))
-                await Task.Delay(2_000, token).ConfigureAwait(false);
         }
     }
 }

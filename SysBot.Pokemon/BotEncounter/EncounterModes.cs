@@ -31,5 +31,10 @@
         /// Bot will soft reset the Legendary Dogs
         /// </summary>
         LegendaryDogs,
+
+        /// <summary>
+        /// Bot will soft reset any of the Regis
+        /// </summary>
+        Regis,
     }
 }
