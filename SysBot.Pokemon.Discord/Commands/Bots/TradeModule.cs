@@ -56,8 +56,6 @@ namespace SysBot.Pokemon.Discord
         [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
         public async Task TradeAsyncAttach([Summary("Trade Code")] int code)
         {
-            var sudo = Context.User.GetIsSudo();
-
             var attachment = Context.Message.Attachments.FirstOrDefault();
             if (attachment == default)
             {
@@ -72,7 +70,8 @@ namespace SysBot.Pokemon.Discord
                 return;
             }
 
-            await AddTradeToQueueAsync(code, Context.User.Username, pk8, sudo).ConfigureAwait(false);
+            var sig = Context.User.GetFavor();
+            await AddTradeToQueueAsync(code, Context.User.Username, pk8, sig).ConfigureAwait(false);
         }
 
         [Command("trade")]
@@ -114,8 +113,8 @@ namespace SysBot.Pokemon.Discord
             }
 
             pkm.ResetPartyStats();
-            var sudo = Context.User.GetIsSudo();
-            await AddTradeToQueueAsync(code, Context.User.Username, (PK8)pkm, sudo).ConfigureAwait(false);
+            var sig = Context.User.GetFavor();
+            await AddTradeToQueueAsync(code, Context.User.Username, (PK8)pkm, sig).ConfigureAwait(false);
         }
 
         [Command("trade")]
@@ -262,11 +261,11 @@ namespace SysBot.Pokemon.Discord
             }
 
             pkm.ResetPartyStats();
-            var sudo = Context.User.GetIsSudo();
-            await Context.AddToQueueAsync(code, Context.User.Username, sudo, pkm, PokeRoutineType.EggRoll, PokeTradeType.EggRoll).ConfigureAwait(false);
+            var sig = Context.User.GetFavor();
+            await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.EggRoll, PokeTradeType.EggRoll).ConfigureAwait(false);
         }
 
-        private async Task AddTradeToQueueAsync(int code, string trainerName, PK8 pk8, bool sudo)
+        private async Task AddTradeToQueueAsync(int code, string trainerName, PK8 pk8, RequestSignificance sig)
         {
             if (!pk8.CanBeTraded() || !IsItemMule(pk8))
             {
@@ -283,11 +282,11 @@ namespace SysBot.Pokemon.Discord
             var la = new LegalityAnalysis(pk8);
 
             if (!Info.Hub.Config.Legality.VerifyLegality)
-                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LanTrade, PokeTradeType.Specific).ConfigureAwait(false);
+                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.Specific).ConfigureAwait(false);
             else if (!la.Valid && Info.Hub.Config.Legality.VerifyLegality)
                 await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
             else
-                await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
+                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
         }
 
         private bool IsItemMule(PK8 pk8)

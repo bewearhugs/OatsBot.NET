@@ -24,7 +24,7 @@ namespace SysBot.Pokemon
         [Category(Startup), Description("Toggle to handle commands asynchronously or synchronously.")]
         public bool AsyncCommands { get; set; }
 
-        [Category(Startup), Description("Custom Status for playing a game. Add {0} to add a trade number updater \"Running Trade #256\".")]
+        [Category(Startup), Description("Custom Status for playing a game. Add {0} to add a trade number updater \"On Trade #256\".")]
         public string BotGameStatus { get; set; } = "{0} SysBot.NET: Pokémon";
 
         [Category(Operation), Description("Custom message the bot will reply with when a user says hello to it. Use string formatting to mention the user in the reply.")]
@@ -58,6 +58,9 @@ namespace SysBot.Pokemon
 
         // Operation
 
+        [Category(Operation), Description("Users with this role are allowed to join the queue with a better position.")]
+        public string RoleFavored { get; set; } = DefaultDisable;
+
         [Category(Operation), Description("Users with these user IDs cannot use the bot.")]
         public string UserBlacklist { get; set; } = string.Empty;
 
@@ -81,6 +84,9 @@ namespace SysBot.Pokemon
 
         [Category(Operation), Description("Comma separated Echo channel IDs that will log special messages.")]
         public string EchoChannels { get; set; } = string.Empty;
+
+        [Category(Operation), Description("Enabling this will allow your users to use $queueStatus, $queueClear, $convert, and $legalize (and their aliases) in Direct Messages with your bot.")]
+        public bool AllowCommandsThroughDM { get; set; } = false;
 
         [Category(Operation), Description("Enabling this will make the bot post an Overall queue count along with Specific queue count")]
         public bool PostOverallQueueCount { get; set; } = true;

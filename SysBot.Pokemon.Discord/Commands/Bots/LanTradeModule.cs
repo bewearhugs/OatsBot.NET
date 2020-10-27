@@ -76,8 +76,8 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.GetSuggestedRelearnMoves();
 
             pkm.ResetPartyStats();
-            var sudo = Context.User.GetIsSudo();
-            await Context.AddToQueueAsync(code, Context.User.Username, sudo, pkm, PokeRoutineType.LanTrade, PokeTradeType.LanRoll).ConfigureAwait(false);
+            var sig = Context.User.GetFavor();
+            await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.LanTrade, PokeTradeType.LanRoll).ConfigureAwait(false);
         }
 
         public static void LanRollTrade(PK8 pkm)

@@ -12,7 +12,7 @@ namespace SysBot.Pokemon.Discord
     {
         private const uint MaxTradeCode = 99999999;
 
-        public static async Task AddToQueueAsync(this SocketCommandContext Context, int code, string trainer, bool sudo, PK8 trade, PokeRoutineType routine, PokeTradeType type)
+        public static async Task AddToQueueAsync(this SocketCommandContext Context, int code, string trainer, RequestSignificance sig, PK8 trade, PokeRoutineType routine, PokeTradeType type)
         {
             if ((uint)code > MaxTradeCode)
             {
@@ -34,7 +34,7 @@ namespace SysBot.Pokemon.Discord
             }
 
             // Try adding
-            var result = Context.AddToTradeQueue(trade, code, trainer, sudo, routine, type, out var msg);
+            var result = Context.AddToTradeQueue(trade, code, trainer, sig, routine, type, out var msg);
 
             // Notify in channel
             await Context.Channel.SendMessageAsync(msg).ConfigureAwait(false);
@@ -55,7 +55,7 @@ namespace SysBot.Pokemon.Discord
             }
         }
 
-        private static bool AddToTradeQueue(this SocketCommandContext Context, PK8 pk8, int code, string trainerName, bool sudo, PokeRoutineType type, PokeTradeType t, out string msg)
+        private static bool AddToTradeQueue(this SocketCommandContext Context, PK8 pk8, int code, string trainerName, RequestSignificance sig, PokeRoutineType type, PokeTradeType t, out string msg)
         {
             var user = Context.User;
             var userID = user.Id;
@@ -63,12 +63,12 @@ namespace SysBot.Pokemon.Discord
 
             var trainer = new PokeTradeTrainerInfo(trainerName);
             var notifier = new DiscordTradeNotifier<PK8>(pk8, trainer, code, Context);
-            var detail = new PokeTradeDetail<PK8>(pk8, trainer, notifier, t, code: code, userID);
+            var detail = new PokeTradeDetail<PK8>(pk8, trainer, notifier, t, code, userID, sig == RequestSignificance.Favored);
             var trade = new TradeEntry<PK8>(detail, userID, type, name);
 
             var hub = SysCordInstance.Self.Hub;
             var Info = hub.Queues.Info;
-            var added = Info.AddToTradeQueue(trade, userID, sudo);
+            var added = Info.AddToTradeQueue(trade, userID, sig == RequestSignificance.Favored);
 
             if (added == QueueResultAdd.AlreadyInQueue)
             {

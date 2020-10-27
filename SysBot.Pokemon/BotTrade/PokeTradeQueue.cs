@@ -13,7 +13,7 @@ namespace SysBot.Pokemon
         public const uint Tier3 = 3;
         public const uint Tier4 = 4;
         public const uint TierFree = uint.MaxValue;
-        private readonly ConcurrentPriorityQueue<uint, PokeTradeDetail<TPoke>> Queue = new ConcurrentPriorityQueue<uint, PokeTradeDetail<TPoke>>();
+        internal readonly FavoredCPQ<uint, PokeTradeDetail<TPoke>> Queue = new FavoredCPQ<uint, PokeTradeDetail<TPoke>>(new FavoredPrioritySettings());
 
         public readonly PokeTradeType Type;
         public PokeTradeQueue(PokeTradeType type) => Type = type;

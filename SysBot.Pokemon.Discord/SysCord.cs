@@ -216,7 +216,7 @@ namespace SysBot.Pokemon.Discord
                 await msg.Channel.SendMessageAsync("You are not permitted to use this command.").ConfigureAwait(false);
                 return true;
             }
-            if (!mgr.CanUseCommandChannel(msg.Channel.Id) && msg.Author.Id != mgr.Owner && !mgr.IsQueueStatusCommand(msg.ToString()))
+            if (!mgr.CanUseCommandChannel(msg.Channel.Id) && msg.Author.Id != mgr.Owner && (!Hub.Config.Discord.AllowCommandsThroughDM || !mgr.IsCommandForDMs(msg.ToString())))
             {
                 await msg.Channel.SendMessageAsync("You can't use that command here.").ConfigureAwait(false);
                 return true;

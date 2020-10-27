@@ -100,7 +100,7 @@ namespace SysBot.Pokemon.Twitch
             });
         }
 
-        private bool AddToTradeQueue(PK8 pk8, int code, OnWhisperReceivedArgs e, bool sudo, PokeRoutineType type, out string msg)
+        private bool AddToTradeQueue(PK8 pk8, int code, OnWhisperReceivedArgs e, RequestSignificance sig, PokeRoutineType type, out string msg)
         {
             // var user = e.WhisperMessage.UserId;
             var userID = ulong.Parse(e.WhisperMessage.UserId);
@@ -109,10 +109,10 @@ namespace SysBot.Pokemon.Twitch
             var trainer = new PokeTradeTrainerInfo(name);
             var notifier = new TwitchTradeNotifier<PK8>(pk8, trainer, code, e.WhisperMessage.Username, client, Channel, Hub.Config.Twitch);
             var tt = type == PokeRoutineType.SeedCheck ? PokeTradeType.Seed : PokeTradeType.Specific;
-            var detail = new PokeTradeDetail<PK8>(pk8, trainer, notifier, tt, code: code, userID);
+            var detail = new PokeTradeDetail<PK8>(pk8, trainer, notifier, tt, code, userID, sig == RequestSignificance.Favored);
             var trade = new TradeEntry<PK8>(detail, userID, type, name);
 
-            var added = Info.AddToTradeQueue(trade, userID, sudo);
+            var added = Info.AddToTradeQueue(trade, userID, sig == RequestSignificance.Sudo);
 
             if (added == QueueResultAdd.AlreadyInQueue)
             {
@@ -202,12 +202,13 @@ namespace SysBot.Pokemon.Twitch
         private string HandleCommand(TwitchLibMessage m, string c, string args, bool whisper)
         {
             bool sudo() => m is ChatMessage ch && (ch.IsBroadcaster || Settings.IsSudo(m.Username));
+            bool subscriber() => m is ChatMessage ch && ch.IsSubscriber;
 
             switch (c)
             {
                 // User Usable Commands
                 case "trade":
-                    var _ = TwitchCommandsHelper.AddToWaitingList(args, m.DisplayName, m.Username, out string msg);
+                    var _ = TwitchCommandsHelper.AddToWaitingList(args, m.DisplayName, m.Username, subscriber(), out string msg);
                     return msg;
                 case "ts":
                     return $"@{m.Username}: {Info.GetPositionString(ulong.Parse(m.UserId))}";
@@ -265,13 +266,21 @@ namespace SysBot.Pokemon.Twitch
             try
             {
                 int code = Util.ToInt32(msg);
-                var _ = AddToTradeQueue(user.Pokemon, code, e, Settings.IsSudo(user.UserName), PokeRoutineType.LinkTrade, out string message);
+                var sig = GetUserSignificance(user);
+                var _ = AddToTradeQueue(user.Pokemon, code, e, sig, PokeRoutineType.LinkTrade, out string message);
                 client.SendMessage(Channel, message);
             }
             catch (Exception ex)
             {
                 LogUtil.LogError($"{ex.Message}", nameof(TwitchBot));
             }
+        }
+
+        private RequestSignificance GetUserSignificance(TwitchQueue user)
+        {
+            if (Settings.IsSudo(user.UserName))
+                return RequestSignificance.Sudo;
+            return user.IsSubscriber ? RequestSignificance.Favored : RequestSignificance.None;
         }
     }
 }

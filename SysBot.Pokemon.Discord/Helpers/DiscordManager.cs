@@ -14,6 +14,7 @@ namespace SysBot.Pokemon.Discord
 
         public readonly SensitiveSet<ulong> SudoDiscord = new SensitiveSet<ulong>();
         public readonly SensitiveSet<string> SudoRoles = new SensitiveSet<string>();
+        public readonly SensitiveSet<string> FavoredRoles = new SensitiveSet<string>();
 
         public readonly SensitiveSet<string> RolesClone = new SensitiveSet<string>();
         public readonly SensitiveSet<string> RolesFixOT = new SensitiveSet<string>();
@@ -28,7 +29,25 @@ namespace SysBot.Pokemon.Discord
 
         public bool CanUseCommandChannel(ulong channel) => WhitelistedChannels.Count == 0 || WhitelistedChannels.Contains(channel);
         public bool CanUseCommandUser(ulong uid) => !BlacklistedUsers.Contains(uid);
-        public bool IsQueueStatusCommand(string msg) => msg.Contains("qs") || msg.Contains("ts") || msg.Contains("queuestatus");
+
+        public RequestSignificance GetSignificance(IEnumerable<string> roles)
+        {
+            var result = RequestSignificance.None;
+            foreach (var r in roles)
+            {
+                if (SudoRoles.Contains(r))
+                    return RequestSignificance.Sudo;
+                if (FavoredRoles.Contains(r))
+                    result = RequestSignificance.Favored;
+            }
+            return result;
+        }
+
+        public bool IsCommandForDMs(string msg) =>
+            msg.Contains("qs") || msg.Contains("ts") || msg.Contains("queuestatus") || 
+            msg.Contains("convert") || msg.Contains("showdown") ||
+            msg.Contains("legalize") || msg.Contains("alm") ||
+            msg.Contains("qc") || msg.Contains("tc") || msg.Contains("queueClear");
 
         public DiscordManager(PokeTradeHubConfig cfg)
         {
@@ -65,6 +84,7 @@ namespace SysBot.Pokemon.Discord
 
             SudoDiscord.Read(cfg.Discord.GlobalSudoList, ulong.Parse);
             SudoRoles.Read(cfg.Discord.RoleSudo, z => z);
+            FavoredRoles.Read(cfg.Discord.RoleFavored, z => z);
 
             RolesClone.Read(cfg.Discord.RoleCanClone, z => z);
             RolesFixOT.Read(cfg.Discord.RoleCanFixOT, z => z);
@@ -81,6 +101,7 @@ namespace SysBot.Pokemon.Discord
             Config.Discord.ChannelWhitelist = WhitelistedChannels.Write();
             Config.Discord.RoleSudo = SudoRoles.Write();
             Config.Discord.GlobalSudoList = SudoDiscord.Write();
+            Config.Discord.RoleFavored = FavoredRoles.Write();
 
             Config.Discord.RoleCanClone = RolesClone.Write();
             Config.Discord.RoleCanFixOT = RolesFixOT.Write();
