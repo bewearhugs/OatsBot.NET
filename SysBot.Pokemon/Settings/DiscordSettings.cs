@@ -82,6 +82,9 @@ namespace SysBot.Pokemon
         [Category(Operation), Description("Comma separated Echo channel IDs that will log special messages.")]
         public string EchoChannels { get; set; } = string.Empty;
 
+        [Category(Operation), Description("Enabling this will make the bot post an Overall queue count along with Specific queue count")]
+        public bool PostOverallQueueCount { get; set; } = true;
+
         [Category(Operation), Description("Message to send over a time interval. Add {0} for a line break. Leave blank to remove Timed Messages.")]
         public string TimedMessage { get; set; } = string.Empty;
 

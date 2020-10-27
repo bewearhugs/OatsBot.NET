@@ -88,14 +88,18 @@ namespace SysBot.Pokemon.Discord
             if (t == PokeTradeType.LanRoll && Info.Hub.Config.Discord.DisplayPokeName && pk8.Species != 0)
                 pokeName = $" Receiving: A Really Illegal Egg.";
 
-            string overallPosition;
-            if (position.QueueCount != position.OverallQueueCount)
-                if (type == PokeRoutineType.SeedCheck && hub.Config.Queues.FlexMode == FlexYieldMode.LessCheatyFirst)
-                    overallPosition = $" | __Overall: {position.Position}/{position.OverallQueueCount}__";
+            string overallPosition = "";
+            if (Info.Hub.Config.Discord.PostOverallQueueCount)
+            {
+                if (position.QueueCount != position.OverallQueueCount)
+                    if (type == PokeRoutineType.SeedCheck && hub.Config.Queues.FlexMode == FlexYieldMode.LessCheatyFirst)
+                        overallPosition = $" | __Overall: {position.Position}/{position.OverallQueueCount}__";
+                    else
+                        overallPosition = $" | __Overall: {position.OverallPosition}/{position.OverallQueueCount}__";
                 else
-                    overallPosition = $" | __Overall: {position.OverallPosition}/{position.OverallQueueCount}__";
-            else
-                overallPosition = $"";
+                    overallPosition = $"";
+            }
+            
             msg = $"{user.Mention} - Added to the **{type}** queue{ticketID}. Current Position: __{type}: {position.Position}/{position.QueueCount}__{overallPosition}.{pokeName}";
 
             var botct = Info.Hub.Bots.Count;

@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PKHeX.Core;
 using SysBot.Base;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -178,10 +177,9 @@ namespace SysBot.Pokemon.Discord
                 return;
 
             var context = new SocketCommandContext(_client, msg);
-            bool timedMsg = TryTimedMessage(msg);
             var mgr = SysCordInstance.Manager;
 
-            if (timedMsg && mgr.WhitelistedChannels.Contains(msg.Channel.Id))
+            if (TryTimedMessage(msg) && mgr.WhitelistedChannels.Contains(msg.Channel.Id))
                 await context.Channel.SendMessageAsync(Hub.Config.Discord.TimedMessage.Replace("{0}", "\n")).ConfigureAwait(false);
 
             // Create a number to track where the prefix ends and the command begins
@@ -218,7 +216,7 @@ namespace SysBot.Pokemon.Discord
                 await msg.Channel.SendMessageAsync("You are not permitted to use this command.").ConfigureAwait(false);
                 return true;
             }
-            if (!mgr.CanUseCommandChannel(msg.Channel.Id) && msg.Author.Id != mgr.Owner)
+            if (!mgr.CanUseCommandChannel(msg.Channel.Id) && msg.Author.Id != mgr.Owner && !mgr.IsQueueStatusCommand(msg.ToString()))
             {
                 await msg.Channel.SendMessageAsync("You can't use that command here.").ConfigureAwait(false);
                 return true;

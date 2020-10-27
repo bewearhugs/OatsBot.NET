@@ -28,6 +28,7 @@ namespace SysBot.Pokemon.Discord
 
         public bool CanUseCommandChannel(ulong channel) => WhitelistedChannels.Count == 0 || WhitelistedChannels.Contains(channel);
         public bool CanUseCommandUser(ulong uid) => !BlacklistedUsers.Contains(uid);
+        public bool IsQueueStatusCommand(string msg) => msg.Contains("qs") || msg.Contains("ts") || msg.Contains("queuestatus");
 
         public DiscordManager(PokeTradeHubConfig cfg)
         {

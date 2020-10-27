@@ -280,8 +280,12 @@ namespace SysBot.Pokemon.Discord
             if (Info.Hub.Config.Trade.EggTrade && pk8.Nickname == "Egg")
                 EggTrade(pk8);
 
+            var la = new LegalityAnalysis(pk8);
+
             if (!Info.Hub.Config.Legality.VerifyLegality)
                 await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LanTrade, PokeTradeType.Specific).ConfigureAwait(false);
+            else if (!la.Valid && Info.Hub.Config.Legality.VerifyLegality)
+                await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
             else
                 await Context.AddToQueueAsync(code, trainerName, sudo, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
         }
