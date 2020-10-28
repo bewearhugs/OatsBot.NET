@@ -310,11 +310,11 @@ namespace SysBot.Pokemon
                     clone.PKRS_Cured = false;
                     clone.PKRS_Days = 0;
                     clone.PKRS_Strain = 0;
-                    poke.SendNotification(this, $"```fix\nDetected an ad OT/Nickname with your {(Species)clone.Species}!```");
+                    poke.SendNotification(this, $"```fix\nDetected an advertisement OT/Nickname with your {(Species)clone.Species}!```");
                 }
                 else
                 {
-                    poke.SendNotification(this, "```fix\nNo website ad detected in Nickname or OT. Exiting trade...```");
+                    poke.SendNotification(this, "```fix\nNo advertisement detected in Nickname or OT. Exiting trade...```");
                     await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
                     return PokeTradeResult.IllegalTrade;
                 }
@@ -328,7 +328,7 @@ namespace SysBot.Pokemon
 
                     var report = la.Report();
                     Log(report);
-                    poke.SendNotification(this, "This Pokémon is not legal per PKHeX's legality checks. I am forbidden from cloning this. Exiting trade.");
+                    poke.SendNotification(this, "This Pokémon is not legal per PKHeX's legality checks. I am forbidden from fixing this. Exiting trade.");
                     poke.SendNotification(this, report);
 
                     await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
