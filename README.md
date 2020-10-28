@@ -7,7 +7,7 @@ For support on this fork of SysBot.NET, join this Discord!
 
 [<img src="https://canary.discordapp.com/api/guilds/676238041907724322/widget.png?style=banner2">](https://discord.gg/FPdYEPh)
 
-Don't join the official PKHeX Developer Discord, no support of this fork will be provided there.
+Support of this fork will NOT be provided in the Official PKHeX Discord server, please do not bother them.
 
 [sys-botbase](https://github.com/olliz0r/sys-botbase) client for remote control automation of Nintendo Switch consoles.
 
