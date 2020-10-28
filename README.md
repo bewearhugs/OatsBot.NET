@@ -1,7 +1,7 @@
 # SysBot.NET
 ![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
 
-## Support Discords:
+## Support Discord:
 
 For support on this fork of SysBot.NET, join this Discord!
 
