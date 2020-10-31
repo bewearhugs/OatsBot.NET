@@ -41,7 +41,12 @@ namespace SysBot.Pokemon
             var msg = $"You are in the **{Detail.Type}** queue! Position: __{Detail.Type}: {position}__{overallPosition} (ID {Detail.Trade.ID})";
             var pk = Detail.Trade.TradeData;
             if (pk.Species != 0)
-                msg += $". Receiving: {(Species)Detail.Trade.TradeData.Species}";
+                if (Detail.Type == PokeRoutineType.EggRoll)
+                    msg += $". Receiving: Mysterious Egg";
+                else if (Detail.Type == PokeRoutineType.LanRoll)
+                    msg += $". Receiving: An Illegal Egg";
+                else
+                    msg += $". Receiving: {(Species)Detail.Trade.TradeData.Species}";
             return msg;
         }
     }

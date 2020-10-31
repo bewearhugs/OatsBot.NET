@@ -86,7 +86,7 @@ namespace SysBot.Pokemon.Discord
                 pokeName = $" Receiving: {(t == PokeTradeType.EggRoll ? "Mysterious Egg" : hub.Config.Trade.ItemMuleSpecies == (Species)pk8.Species && pk8.HeldItem != 0 ? $"{(Species)pk8.Species + " (" + ShowdownSet.GetShowdownText(pk8).Split('@', '\n')[1].Trim() + ")"}" : $"{(Species)pk8.Species}")}{(pk8.IsEgg && t != PokeTradeType.EggRoll ? " (Egg)" : "")}.";
 
             if (t == PokeTradeType.LanRoll && Info.Hub.Config.Discord.DisplayPokeName && pk8.Species != 0)
-                pokeName = $" Receiving: A Really Illegal Egg.";
+                pokeName = $" Receiving: An Illegal Egg.";
 
             string overallPosition = "";
             if (Info.Hub.Config.Discord.PostOverallQueueCount)

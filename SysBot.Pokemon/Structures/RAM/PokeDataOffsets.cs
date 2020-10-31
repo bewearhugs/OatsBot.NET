@@ -43,7 +43,7 @@ namespace SysBot.Pokemon
         public const uint LinkTradePartnerNameOffset = 0xAF28384C;
         public const uint LinkTradeSearchingOffset = 0x2F76C3C8;
 
-        // Suprise Trade Offsets
+        // Surprise Trade Offsets
         public const uint SurpriseTradePartnerPokemonOffset = 0x450675a0;
 
         public const uint SurpriseTradeLockSlot = 0x450676fc;
@@ -55,11 +55,11 @@ namespace SysBot.Pokemon
         public const uint SurpriseTradeSearch_Found = 0x0200012C;
         public const uint SurpriseTradePartnerNameOffset = 0x45067708;
 
-        /* Route 5 Daycare */
+        /* Wild Area Daycare */
         public const uint DayCare_Wildarea_Step_Counter = 0x4511FC54;
         public const uint DayCare_Wildarea_Egg_Is_Ready = 0x4511FC60;
 
-        /* Wild Area Daycare */
+        /* Route 5 Daycare */
         public const uint DayCare_Route5_Step_Counter = 0x4511F99C;
         public const uint DayCare_Route5_Egg_Is_Ready = 0x4511F9A8;
 
