@@ -108,9 +108,9 @@ namespace SysBot.Pokemon
             {
                 // Set Link code
                 await Click(PLUS, 1_000, token).ConfigureAwait(false);
-                await EnterTradeCode(code, token).ConfigureAwait(false);
+                await EnterTradeCode(code, Hub.Config, token).ConfigureAwait(false);
                 await Click(PLUS, 2_000, token).ConfigureAwait(false);
-                await Click(A, 1_000, token).ConfigureAwait(false);
+                await Click(A, 2_000, token).ConfigureAwait(false);
             }
 
             if (addFriends && !string.IsNullOrEmpty(Settings.FriendCode))
@@ -157,7 +157,7 @@ namespace SysBot.Pokemon
                 PlayerReady[i] = false;
 
             Log("Finishing raid routine.");
-            await Task.Delay(5_000 + Hub.Config.Timings.ExtraTimeEndRaid, token).ConfigureAwait(false);
+            await Task.Delay(1_000 + Hub.Config.Timings.ExtraTimeEndRaid, token).ConfigureAwait(false);
         }
 
         private async Task<bool> GetRaidPartyReady(CancellationToken token)
@@ -284,9 +284,11 @@ namespace SysBot.Pokemon
         // Goes from Home screen hovering over the game to the correct profile
         private async Task NavigateToProfile(CancellationToken token)
         {
-            await Click(DUP, 0_600, token).ConfigureAwait(false);
+            int delay = Hub.Config.Timings.KeypressTime;
+
+            await Click(DUP, delay, token).ConfigureAwait(false);
             for (int i = 1; i < Settings.ProfileNumber; i++)
-                await Click(DRIGHT, 0_600, token).ConfigureAwait(false);
+                await Click(DRIGHT, delay, token).ConfigureAwait(false);
             await Click(A, 2_000, token).ConfigureAwait(false);
         }
 
@@ -294,24 +296,26 @@ namespace SysBot.Pokemon
         // Should already be on either "Friend List" or "Add Friend"
         private async Task NavigateFriendsMenu(bool delete, CancellationToken token)
         {
+            int delay = Hub.Config.Timings.KeypressTime;
+
             // Go all the way up, then down 1. Reverse for adding friends.
             if (delete)
             {
-                for (int i = 0; i < 4; i++)
-                    await Click(DUP, 0_600, token).ConfigureAwait(false);
-                await Click(DDOWN, 0_600, token).ConfigureAwait(false);
-                await Click(A, 0_800, token).ConfigureAwait(false);
+                for (int i = 0; i < 5; i++)
+                    await Click(DUP, delay, token).ConfigureAwait(false);
+                await Click(DDOWN, 1_000, token).ConfigureAwait(false);
+                await Click(A, 1_000, token).ConfigureAwait(false);
 
                 await NavigateFriends(Settings.RowStartDeletingFriends, 4, token).ConfigureAwait(false);
             }
             else
             {
-                for (int i = 0; i < 4; i++)
-                    await Click(DDOWN, 0_600, token).ConfigureAwait(false);
-                await Click(DUP, 0_600, token).ConfigureAwait(false);
+                for (int i = 0; i < 5; i++)
+                    await Click(DDOWN, delay, token).ConfigureAwait(false);
+                await Click(DUP, 1_000, token).ConfigureAwait(false);
 
                 // Click into the menu.
-                await Click(A, 0_800, token).ConfigureAwait(false);
+                await Click(A, 1_000, token).ConfigureAwait(false);
                 await Click(A, 2_500, token).ConfigureAwait(false);
 
                 await NavigateFriends(Settings.RowStartAddingFriends, 5, token).ConfigureAwait(false);
@@ -321,14 +325,16 @@ namespace SysBot.Pokemon
         // Navigates to the specified row and column.
         private async Task NavigateFriends(int row, int column, CancellationToken token)
         {
+            int delay = Hub.Config.Timings.KeypressTime;
+
             if (row == 1)
                 return;
 
             for (int i = 1; i < row; i++)
-                await Click(DDOWN, 0_600, token).ConfigureAwait(false);
+                await Click(DDOWN, delay, token).ConfigureAwait(false);
 
             for (int i = 1; i < column; i++)
-                await Click(DRIGHT, 0_600, token).ConfigureAwait(false);
+                await Click(DRIGHT, delay, token).ConfigureAwait(false);
         }
 
         // Deletes one friend. Should already be hovering over the friend card.
