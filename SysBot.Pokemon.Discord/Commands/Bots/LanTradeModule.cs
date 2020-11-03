@@ -63,7 +63,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                   849, 850, 851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861, 862, 863,
                   864, 865, 866, 867, 868, 869, 870, 871, 872, 873, 874, 875, 876, 877, 878,
                   879, 880, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893,
-                  894, 895, 896, 897, 898, };
+                  894, 895, 896, 897, 898 };
 
             var rng = new System.Random();
             var set = new ShowdownSet($"Egg({SpeciesName.GetSpeciesName(rng.Next(new Zukan8Index(Zukan8Type.None, 1).Index, GameUtil.GetMaxSpeciesID(GameVersion.SWSH)), 2)})");
@@ -86,7 +86,8 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
 
         public static void LanRollTrade(PK8 pkm)
         {
-            int[] regional = { 26, 27, 28, 37, 38, 50, 51, 52, 53, 77, 78, 79, 80, 83, 103, 105, 110, 122, 199, 222, 263, 264, 554, 555, 562, 618 };
+            int[] regional = { 26, 27, 28, 37, 38, 50, 51, 52, 53, 77, 78, 79, 80, 83, 103,
+                  105, 110, 122, 144, 145, 146, 199, 222, 263, 264, 554, 555, 562, 618 };
 
             int[] shinyOdds = { 3, 3, 3, 3, 3, 5, 5, 5, 5, 5,
                                 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
@@ -111,13 +112,11 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.StatNature = pkm.Nature;
             pkm.IVs = pkm.SetRandomIVs(4);
 
-            int[] existantBalls =
-                { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-                  22, 23, 24, 25, 26 };
-
-            int randomBall = existantBalls[rng.Next(0, existantBalls.Length)];
+            int randomBall = rng.Next(0, pkm.MaxBallID);
             pkm.Ball = randomBall;
 
+            // Source: https://bulbapedia.bulbagarden.net/wiki/Ability#List_of_Abilities because I forget where I get lists of stuff I use...
+            // https://game8.co/games/pokemon-sword-shield/archives/271828 to see if it exists in the game.
             int[] vaildAbilities =
                 { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22,
                   23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42,
@@ -132,12 +131,13 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                   198, 199, 200, 201, 202, 203, 204, 205, 207, 208, 209, 212, 214, 215, 217,
                   218, 220, 221, 222, 225, 226, 227, 228, 229, 230, 231, 232, 234, 235, 236,
                   237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
-                  252, 253, 254, 255, 256, 257, 258, 259, 260 };
+                  252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265 }; // 266/267 (As One) is not on here because it is IN TESTING.
 
             int abilityNum = rng.Next(0, vaildAbilities.Length);
 
             pkm.Ability = vaildAbilities[abilityNum];
 
+            // Source: https://bulbapedia.bulbagarden.net/wiki/List_of_moves because I suck...
             int[] invalidMoves =
                 { 2, 3, 4, 13, 26, 27, 41, 49, 82, 96, 99, 112, 117, 119, 121, 125, 128, 131,
                   132, 134, 140, 145, 146, 148, 149, 159, 169, 171, 185, 193, 216, 218, 222,
@@ -151,23 +151,22 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                   732, 733, 734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 757, 758, 759,
                   760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774};
 
-            const int numOfMoves = 818;
-            int moveRng1 = rng.Next(0, numOfMoves);
-            int moveRng2 = rng.Next(0, numOfMoves);
-            int moveRng3 = rng.Next(0, numOfMoves);
-            int moveRng4 = rng.Next(0, numOfMoves);
+            int moveRng1 = rng.Next(0, pkm.MaxMoveID);
+            int moveRng2 = rng.Next(0, pkm.MaxMoveID);
+            int moveRng3 = rng.Next(0, pkm.MaxMoveID);
+            int moveRng4 = rng.Next(0, pkm.MaxMoveID);
 
             while (invalidMoves.ToList().Contains(moveRng1)) // Keeps selecting moves until it picks one that exists in Sword and Shield
-                moveRng1 = rng.Next(0, numOfMoves);
+                moveRng1 = rng.Next(0, pkm.MaxMoveID);
 
             while (invalidMoves.ToList().Contains(moveRng2) || moveRng1 == moveRng2) // the OR operand is for duplicate moves
-                moveRng2 = rng.Next(0, numOfMoves);
+                moveRng2 = rng.Next(0, pkm.MaxMoveID);
 
             while (invalidMoves.ToList().Contains(moveRng3) || moveRng1 == moveRng3 || moveRng2 == moveRng3)
-                moveRng3 = rng.Next(0, numOfMoves);
+                moveRng3 = rng.Next(0, pkm.MaxMoveID);
 
             while (invalidMoves.ToList().Contains(moveRng4) || moveRng1 == moveRng4 || moveRng2 == moveRng4 || moveRng3 == moveRng4)
-                moveRng4 = rng.Next(0, numOfMoves);
+                moveRng4 = rng.Next(0, pkm.MaxMoveID);
 
             pkm.Move1 = moveRng1;
             pkm.Move2 = moveRng2;
@@ -175,9 +174,9 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.Move4 = moveRng4;
             MoveApplicator.SetMaximumPPCurrent(pkm);
 
-            pkm.HeldItem = rng.Next(1, 926); // random held item
+            pkm.HeldItem = rng.Next(1, pkm.MaxItemID); // random held item
             while (!ItemRestrictions.IsHeldItemAllowed(pkm)) // checks for non-existing items
-                pkm.HeldItem = rng.Next(1, 926);
+                pkm.HeldItem = rng.Next(1, pkm.MaxItemID);
 
             pkm.CurrentLevel = rng.Next(1, 101);
             pkm.IsEgg = true;
@@ -196,7 +195,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             pkm.HT_Memory = 0;
             pkm.HT_Feeling = 0;
             pkm.HT_Intensity = 0;
-            pkm.EVs = new int[] { rng.Next(0, 252), rng.Next(0, 252), rng.Next(0, 252), rng.Next(0, 252), rng.Next(0, 252), rng.Next(0, 252) };
+            pkm.EVs = new int[] { 0, 0, 0, 0, 0, 0 };
             pkm.Markings = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
             pkm.SetRibbon(rng.Next(53, 98), true); //ribbons 53-97 are marks
 

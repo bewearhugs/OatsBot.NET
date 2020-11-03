@@ -178,7 +178,7 @@ namespace SysBot.Pokemon.Discord
 
             var context = new SocketCommandContext(_client, msg);
             var mgr = SysCordInstance.Manager;
-
+            
             if (TryTimedMessage(msg) && mgr.WhitelistedChannels.Contains(msg.Channel.Id))
                 await context.Channel.SendMessageAsync(Hub.Config.Discord.TimedMessage.Replace("{0}", "\n")).ConfigureAwait(false);
 

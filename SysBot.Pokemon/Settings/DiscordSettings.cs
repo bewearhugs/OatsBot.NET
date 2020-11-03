@@ -91,13 +91,13 @@ namespace SysBot.Pokemon
         [Category(Operation), Description("Enabling this will make the bot post an Overall queue count along with Specific queue count")]
         public bool PostOverallQueueCount { get; set; } = true;
 
-        [Category(Operation), Description("Message to send over a time interval. Add {0} for a line break. Leave blank to remove Timed Messages.")]
+        [Category(Operation), Description("Message to send over a time interval into Whitelisted Channels. Add {0} for a line break. Leave blank to remove Timed Messages.")]
         public string TimedMessage { get; set; } = string.Empty;
 
         [Category(Operation), Description("Timer for Timed Messages in minutes.")]
         public int TimedMessagesTimer { get; set; } = 15;
 
-        [Category(Operation), Description("Returns PK8s of Pokémon shown in the trade to the user.")]
+        [Category(Operation), Description("Returns PK8s and Showdown Sets of Pokémon shown in the trade to the user.")]
         public bool ReturnPK8s { get; set; } = true;
 
         [Category(Operation), Description("Display which Pokémon the user requested.")]

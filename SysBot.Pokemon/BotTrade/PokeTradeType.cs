@@ -8,7 +8,6 @@
         Clone,
         FixOT,
         EggRoll,
-        LanTrade,
         LanRoll,
         Dump,
     }

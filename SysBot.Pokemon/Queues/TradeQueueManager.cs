@@ -16,7 +16,6 @@ namespace SysBot.Pokemon
         private readonly PokeTradeQueue<T> EggRoll = new PokeTradeQueue<T>(PokeTradeType.EggRoll);
         private readonly PokeTradeQueue<T> Dump = new PokeTradeQueue<T>(PokeTradeType.Dump);
         private readonly PokeTradeQueue<T> LanRoll = new PokeTradeQueue<T>(PokeTradeType.LanRoll);
-        private readonly PokeTradeQueue<T> LanTrade = new PokeTradeQueue<T>(PokeTradeType.LanTrade);
         public readonly TradeQueueInfo<T> Info;
         public readonly PokeTradeQueue<T>[] AllQueues;
 
@@ -24,7 +23,7 @@ namespace SysBot.Pokemon
         {
             Hub = hub;
             Info = new TradeQueueInfo<T>(hub);
-            AllQueues = new[] { Seed, Dump, Clone, FixOT, EggRoll, LanRoll, LanTrade, Trade, };
+            AllQueues = new[] { Seed, Dump, Clone, FixOT, EggRoll, LanRoll, Trade };
 
             foreach (var q in AllQueues)
                 q.Queue.Settings = hub.Config.Favoritism;
@@ -40,7 +39,6 @@ namespace SysBot.Pokemon
                 PokeRoutineType.EggRoll => EggRoll,
                 PokeRoutineType.Dump => Dump,
                 PokeRoutineType.LanRoll => LanRoll,
-                PokeRoutineType.LanTrade => LanTrade,
                 _ => Trade,
             };
         }

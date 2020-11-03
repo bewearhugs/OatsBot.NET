@@ -96,7 +96,6 @@ namespace SysBot.Pokemon.Discord
             var sav = AutoLegalityWrapper.GetTrainerInfo(gen);
             var pkm = sav.GetLegal(template, out _);
 
-
             var la = new LegalityAnalysis(pkm);
             var spec = GameInfo.Strings.Species[template.Species];
             var invalid = !(pkm is PK8) || (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality);
@@ -110,6 +109,12 @@ namespace SysBot.Pokemon.Discord
             {
                 if (await TrollAsync(invalid, template).ConfigureAwait(false))
                     return;
+            }
+            else if (!Info.Hub.Config.Legality.VerifyLegality)
+            {
+                var msg = $"Unable to use Showdown Set for LAN Trading.";
+                await ReplyAsync(msg).ConfigureAwait(false);
+                return;
             }
 
             pkm.ResetPartyStats();
