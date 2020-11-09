@@ -71,31 +71,36 @@ namespace SysBot.Pokemon.Discord
         public async Task PowerUp([Summary("Trade Code")] int code, [Summary("EVs Line")][Remainder] string EVsContent)
         {
             string[] StatNames = { "HP", "Atk", "Def", "SpA", "SpD", "Spe" };
-            int[] EVs = { 0, 0, 0, 0, 0, 0 };
+            int[] EVs = { 00, 00, 00, 00, 00, 00 };
 
             var list = SplitLineStats(EVsContent);
-            var set = new ShowdownSet(EVsContent);
-            if ((list.Length & 1) == 1)
-                set.InvalidLines.Add("Unknown EV input.");
-            for (int i = 0; i < list.Length / 2; i++)
+
+            for (int i = 0; i <= list.Length - 3; i++)
             {
-                int pos = i * 2;
+                int pos = i + 1;
                 int index = StringUtil.FindIndexIgnoreCase(StatNames, list[pos + 1]);
-                if (index >= 0 && ushort.TryParse(list[pos + 0], out var EV))
+                if (index >= 0 && ushort.TryParse(list[pos], out var EV))
+                {
                     EVs[index] = EV;
-                else
-                    set.InvalidLines.Add($"Unknown EV stat: {EVsContent[pos]}");
+                }
             }
 
-            if (set.InvalidLines.Count != 0)
+            var EVsTotal = EVs[0] + EVs[1] + EVs[2] + EVs[3] + EVs[4] + EVs[5];
+            if (EVsTotal > 510 || EVsTotal < 0)
             {
-                var msg = $"Unable to parse your EVs:\n{string.Join("\n", set.InvalidLines)}";
-                await ReplyAsync(msg).ConfigureAwait(false);
+                await ReplyAsync("EVs not legal.");
                 return;
             }
 
-            var pkm = new PK8();
-            pkm.EVs = EVs;
+            var pkm = new PK8
+            {
+                EV_HP = EVs[0],
+                EV_ATK = EVs[1],
+                EV_DEF = EVs[2],
+                EV_SPA = EVs[3],
+                EV_SPD = EVs[4],
+                EV_SPE = EVs[5],
+            };
 
             var sig = Context.User.GetFavor();
             await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.PowerUp, PokeTradeType.PowerUp).ConfigureAwait(false);
@@ -111,7 +116,6 @@ namespace SysBot.Pokemon.Discord
             int[] EVs = { 00, 00, 00, 00, 00, 00 };
 
             var list = SplitLineStats(EVsContent);
-            string test = "";
 
             for (int i = 0; i <= list.Length - 3; i++)
             {
@@ -119,29 +123,26 @@ namespace SysBot.Pokemon.Discord
                 int index = StringUtil.FindIndexIgnoreCase(StatNames, list[pos + 1]);
                 if (index >= 0 && ushort.TryParse(list[pos], out var EV))
                 {
-                    test += $"{list[pos + 1]}: {EV}\n";
                     EVs[index] = EV;
                 }
             }
 
-            //await ReplyAsync($"{EVs[0]}, {EVs[1]}, {EVs[2]}, {EVs[3]}, {EVs[4]}, {EVs[5]}").ConfigureAwait(false);
-            //await ReplyAsync(test).ConfigureAwait(false);
-
             var EVsTotal = EVs[0] + EVs[1] + EVs[2] + EVs[3] + EVs[4] + EVs[5];
-
             if (EVsTotal > 510 || EVsTotal < 0)
             {
                 await ReplyAsync("EVs not legal.");
                 return;
             }
 
-            var pkm = new PK8();
-            pkm.EV_HP = EVs[0];
-            pkm.EV_ATK = EVs[1];
-            pkm.EV_DEF = EVs[2];
-            pkm.EV_SPA = EVs[3];
-            pkm.EV_SPD = EVs[4];
-            pkm.EV_SPE = EVs[5];
+            var pkm = new PK8
+            {
+                EV_HP = EVs[0],
+                EV_ATK = EVs[1],
+                EV_DEF = EVs[2],
+                EV_SPA = EVs[3],
+                EV_SPD = EVs[4],
+                EV_SPE = EVs[5],
+            };
 
             var code = Info.GetRandomTradeCode();
             var sig = Context.User.GetFavor();

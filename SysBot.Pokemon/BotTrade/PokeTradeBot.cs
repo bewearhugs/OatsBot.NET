@@ -353,8 +353,6 @@ namespace SysBot.Pokemon
             {
                 var clone = (PK8)pk.Clone();
 
-                //Log($"{poke.TradeData.EVs[0]}, {poke.TradeData.EVs[1]}, {poke.TradeData.EVs[2]}, {poke.TradeData.EVs[3]}, {poke.TradeData.EVs[4]}, {poke.TradeData.EVs[5]}");
-
                 clone.MaximizeLevel();
                 clone.SetRecordFlags();
                 clone.SetMaximumPPUps();
