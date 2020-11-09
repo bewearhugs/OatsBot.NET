@@ -349,6 +349,53 @@ namespace SysBot.Pokemon
                 for (int i = 0; i < 5; i++)
                     await Click(A, 0_500, token).ConfigureAwait(false);
             }
+            else if (poke.Type == PokeTradeType.PowerUp)
+            {
+                var clone = (PK8)pk.Clone();
+
+                //Log($"{poke.TradeData.EVs[0]}, {poke.TradeData.EVs[1]}, {poke.TradeData.EVs[2]}, {poke.TradeData.EVs[3]}, {poke.TradeData.EVs[4]}, {poke.TradeData.EVs[5]}");
+
+                clone.MaximizeLevel();
+                clone.SetRecordFlags();
+                clone.SetMaximumPPUps();
+                if (poke.TradeData.EVTotal != 0) // If no EVs specified in command (=0), make them the original EVs.
+                    clone.EVs = poke.TradeData.EVs;
+                clone.SetSuggestedHyperTrainingData(clone.IVs);
+                if (clone.CanToggleGigantamax(clone.Species, clone.SpecForm))
+                    clone.CanGigantamax = true;
+                if (clone is IDynamaxLevel d)
+                    d.DynamaxLevel = (byte)(d.CanHaveDynamaxLevel(clone) ? 10 : 0);
+
+                var la = new LegalityAnalysis(clone);
+                if (!la.Valid && Hub.Config.Legality.VerifyLegality)
+                {
+                    Log($"PowerUp request has detected an invalid Pokémon: {(Species)clone.Species}");
+                    if (DumpSetting.Dump)
+                        DumpPokemon(DumpSetting.DumpFolder, "hacked", clone);
+
+                    var report = la.Report();
+                    Log(report);
+                    poke.SendNotification(this, "This Pokémon is not legal per PKHeX's legality checks. I am forbidden from modifying this. Exiting trade.");
+                    poke.SendNotification(this, report);
+
+                    await ExitTrade(Hub.Config, true, token).ConfigureAwait(false);
+                    return PokeTradeResult.IllegalTrade;
+                }
+
+                if (Hub.Config.Legality.ResetHOMETracker)
+                    clone.Tracker = 0;
+
+                poke.SendNotification(this, $"```pu\nPowered up your {(Species)clone.Species}! Now confirm the trade!```");
+                Log($"Powered up {(Species)clone.Species}.");
+
+                await ReadUntilPresent(LinkTradePartnerPokemonOffset, 3_000, 1_000, token).ConfigureAwait(false);
+                await Click(A, 0_800, token).ConfigureAwait(false);
+                await SetBoxPokemon(clone, InjectBox, InjectSlot, token, sav).ConfigureAwait(false);
+                pkm = clone;
+
+                for (int i = 0; i < 5; i++)
+                    await Click(A, 0_500, token).ConfigureAwait(false);
+            }
             else if (poke.Type == PokeTradeType.Clone)
             {
                 // Inject the shown Pokémon.
@@ -433,7 +480,7 @@ namespace SysBot.Pokemon
             // Trade was Successful!
             var traded = await ReadBoxPokemon(InjectBox, InjectSlot, token).ConfigureAwait(false);
             // Pokémon in b1s1 is same as the one they were supposed to receive (was never sent).
-            if (poke.Type != PokeTradeType.FixOT && SearchUtil.HashByDetails(traded) == SearchUtil.HashByDetails(pkm))
+            if (poke.Type != PokeTradeType.FixOT && poke.Type != PokeTradeType.PowerUp && SearchUtil.HashByDetails(traded) == SearchUtil.HashByDetails(pkm))
             {
                 Log("User did not complete the trade.");
                 return PokeTradeResult.TrainerTooSlow;
@@ -452,8 +499,12 @@ namespace SysBot.Pokemon
                     counts.AddCompletedClones();
                 else if (poke.Type == PokeTradeType.FixOT)
                     counts.AddCompletedFixOTs();
+                else if (poke.Type == PokeTradeType.PowerUp)
+                    counts.AddCompletedPowerUps();
                 else if (poke.Type == PokeTradeType.EggRoll)
                     counts.AddCompletedEggRolls();
+                else if (poke.Type == PokeTradeType.LanRoll)
+                    counts.AddCompletedLanRolls();
                 else
                     Hub.Counts.AddCompletedTrade();
 
@@ -461,7 +512,7 @@ namespace SysBot.Pokemon
                 {
                     var subfolder = poke.Type.ToString().ToLower();
                     DumpPokemon(DumpSetting.DumpFolder, subfolder, traded); // received
-                    if (poke.Type == PokeTradeType.Specific || poke.Type == PokeTradeType.Clone || poke.Type == PokeTradeType.FixOT || poke.Type == PokeTradeType.EggRoll)
+                    if (poke.Type == PokeTradeType.Specific || poke.Type == PokeTradeType.Clone || poke.Type == PokeTradeType.FixOT || poke.Type == PokeTradeType.PowerUp || poke.Type == PokeTradeType.EggRoll || poke.Type == PokeTradeType.LanRoll)
                         DumpPokemon(DumpSetting.DumpFolder, "traded", pkm); // sent to partner
                 }
             }

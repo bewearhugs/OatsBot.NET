@@ -33,8 +33,18 @@
         LegendaryDogs,
 
         /// <summary>
-        /// Bot will soft reset any of the Regis
+        /// Bot will soft reset any of the Regis, not Regigigas
         /// </summary>
         Regis,
+
+        /// <summary>
+        /// Bot will soft reset Regigigas
+        /// </summary>
+        Regigigas,
+
+        /// <summary>
+        /// Bot will soft reset any of the Swords of Justice
+        /// </summary>
+        SwordsOfJustice,
     }
 }

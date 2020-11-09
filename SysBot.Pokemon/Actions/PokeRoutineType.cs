@@ -14,6 +14,7 @@
         SeedCheck,
         Clone,
         FixOT,
+        PowerUp,
         EggRoll,
         Dump,
 

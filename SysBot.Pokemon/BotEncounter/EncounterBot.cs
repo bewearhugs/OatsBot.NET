@@ -53,6 +53,8 @@ namespace SysBot.Pokemon
                 EncounterMode.Eternatus => DoEternatusEncounter(token),
                 EncounterMode.LegendaryDogs => DoDogEncounter(token),
                 EncounterMode.Regis => DoRegiEncounter(token),
+                EncounterMode.Regigigas => DoRegiEncounter(token),
+                EncounterMode.SwordsOfJustice => DoSoJEncounter(token),
                 _ => WalkInLine(token),
             };
             await task.ConfigureAwait(false);
@@ -177,10 +179,10 @@ namespace SysBot.Pokemon
 
                 // Spam through menus until a battle is found.
                 while (!await IsInBattle(token).ConfigureAwait(false))
-                    await Click(A, 0_900, token).ConfigureAwait(false);
+                    await Click(A, 1_000, token).ConfigureAwait(false);
 
                 Log("Encounter started! Checking details...");
-                var pk = await ReadUntilPresent(WildPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
+                var pk = await ReadUntilPresent(Hub.Config.Encounter.EncounteringType == EncounterMode.Regis ? WildPokemonOffset : RaidPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
                 if (pk == null)
                 {
                     Log("Invalid data detected. Restarting loop.");
@@ -193,6 +195,54 @@ namespace SysBot.Pokemon
                 Log($"Resetting {(Species)pk.Species} by restarting the game.");
                 await CloseGame(Hub.Config, token).ConfigureAwait(false);
                 await StartGame(Hub.Config, token).ConfigureAwait(false);
+            }
+        }
+
+        private async Task DoSoJEncounter(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                Log("Opening Camp...");
+
+                // Assume the user has camp pre-selected before the routine begins.
+                await Click(X, 1_000, token).ConfigureAwait(false);
+                await Click(A, 7_000 + Hub.Config.Timings.ExtraTimeLoadCamp, token).ConfigureAwait(false);
+
+                // An offset would be ideal, I'm just too lazy to learn how to grab offsets...
+                Log("Loaded Camp! Exiting...");
+
+                // Spam B, B, B, A until we are in a battle to ensure we actually leave the camp.
+                // We use an IsInBattle because the battle will start when we exit camp.
+                while (!await IsInBattle(token).ConfigureAwait(false))
+                {
+                    await Click(B, 1_000, token).ConfigureAwait(false);
+                    await Click(B, 1_000, token).ConfigureAwait(false);
+                    await Click(B, 1_000, token).ConfigureAwait(false);
+                    await Click(A, 1_000, token).ConfigureAwait(false);
+                }
+                    
+
+                Log("Encounter started! Checking details...");
+                var pk = await ReadUntilPresent(WildPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
+                if (pk == null)
+                {
+                    Log("Invalid data detected. Restarting loop.");
+                    continue;
+                }
+
+                if (await HandleEncounter(pk, false, token).ConfigureAwait(false))
+                    return;
+
+                // Offsets are flickery so make sure we see it 3 times.
+                for (int i = 0; i < 3; i++)
+                    await ReadUntilChanged(BattleMenuOffset, BattleMenuReady, 5_000, 0_100, true, token).ConfigureAwait(false);
+
+                Log("Running away...");
+                while (await IsInBattle(token).ConfigureAwait(false))
+                    await FleeToOverworld(token).ConfigureAwait(false);
+
+                // Extra delay to be sure we're fully out of the battle.
+                await Task.Delay(0_500, token).ConfigureAwait(false);
             }
         }
 

@@ -13,6 +13,7 @@ namespace SysBot.Pokemon
         private readonly PokeTradeQueue<T> Seed = new PokeTradeQueue<T>(PokeTradeType.Seed);
         private readonly PokeTradeQueue<T> Clone = new PokeTradeQueue<T>(PokeTradeType.Clone);
         private readonly PokeTradeQueue<T> FixOT = new PokeTradeQueue<T>(PokeTradeType.FixOT);
+        private readonly PokeTradeQueue<T> PowerUp = new PokeTradeQueue<T>(PokeTradeType.PowerUp);
         private readonly PokeTradeQueue<T> EggRoll = new PokeTradeQueue<T>(PokeTradeType.EggRoll);
         private readonly PokeTradeQueue<T> Dump = new PokeTradeQueue<T>(PokeTradeType.Dump);
         private readonly PokeTradeQueue<T> LanRoll = new PokeTradeQueue<T>(PokeTradeType.LanRoll);
@@ -23,7 +24,7 @@ namespace SysBot.Pokemon
         {
             Hub = hub;
             Info = new TradeQueueInfo<T>(hub);
-            AllQueues = new[] { Seed, Dump, Clone, FixOT, EggRoll, LanRoll, Trade };
+            AllQueues = new[] { Seed, Dump, Clone, FixOT, PowerUp, EggRoll, LanRoll, Trade };
 
             foreach (var q in AllQueues)
                 q.Queue.Settings = hub.Config.Favoritism;
@@ -36,6 +37,7 @@ namespace SysBot.Pokemon
                 PokeRoutineType.SeedCheck => Seed,
                 PokeRoutineType.Clone => Clone,
                 PokeRoutineType.FixOT => FixOT,
+                PokeRoutineType.PowerUp => PowerUp,
                 PokeRoutineType.EggRoll => EggRoll,
                 PokeRoutineType.Dump => Dump,
                 PokeRoutineType.LanRoll => LanRoll,
@@ -133,6 +135,8 @@ namespace SysBot.Pokemon
             if (TryDequeueInternal(PokeRoutineType.Clone, out detail, out priority))
                 return true;
             if (TryDequeueInternal(PokeRoutineType.FixOT, out detail, out priority))
+                return true;
+            if (TryDequeueInternal(PokeRoutineType.PowerUp, out detail, out priority))
                 return true;
             if (TryDequeueInternal(PokeRoutineType.EggRoll, out detail, out priority))
                 return true;
