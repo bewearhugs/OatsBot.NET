@@ -113,6 +113,24 @@ namespace SysBot.Pokemon
                         await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
                     }
                 }
+
+                if (type == PokeRoutineType.LanTrade || type == PokeRoutineType.LanRoll)
+                {
+                    Log("Rebooting into LAN Mode Just in Case We Got Disconnected");
+                    await Click(X, 2_000, token).ConfigureAwait(false);
+                    await Click(A, 4_000, token).ConfigureAwait(false);
+
+                    await BootLanMode(4_000, token).ConfigureAwait(false);
+
+                    // Give time to connect
+                    await Task.Delay(8_000, token).ConfigureAwait(false);
+
+                    await Click(A, 1_000, token).ConfigureAwait(false); // Click out of the Boot prompt
+                    await Click(B, 1_000, token).ConfigureAwait(false);
+                    await Click(B, 1_000, token).ConfigureAwait(false);
+                    await Click(B, 1_000, token).ConfigureAwait(false);
+                }
+
                 var result = await PerformLinkCodeTrade(sav, detail, token).ConfigureAwait(false);
                 if (result != PokeTradeResult.Success) // requeue
                 {
@@ -254,7 +272,7 @@ namespace SysBot.Pokemon
             }
             
             // Confirm Box 1 Slot 1
-            if (poke.Type == PokeTradeType.Specific || poke.Type == PokeTradeType.EggRoll)
+            if (poke.Type == PokeTradeType.Specific || poke.Type == PokeTradeType.EggRoll || poke.Type == PokeTradeType.LanTrade || poke.Type == PokeTradeType.LanRoll)
             {
                 for (int i = 0; i < 5; i++)
                     await Click(A, 0_500, token).ConfigureAwait(false);

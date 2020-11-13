@@ -249,7 +249,7 @@ namespace SysBot.Pokemon.Discord
             var la = new LegalityAnalysis(pk8);
 
             if (!Info.Hub.Config.Legality.VerifyLegality)
-                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.Specific).ConfigureAwait(false);
+                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade).ConfigureAwait(false);
             else if (!la.Valid && Info.Hub.Config.Legality.VerifyLegality)
                 await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
             else

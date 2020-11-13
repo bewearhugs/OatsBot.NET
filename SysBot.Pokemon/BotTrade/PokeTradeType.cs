@@ -9,6 +9,7 @@
         FixOT,
         PowerUp,
         EggRoll,
+        LanTrade,
         LanRoll,
         Dump,
     }
