@@ -107,12 +107,8 @@ namespace SysBot.Pokemon
                 Hub.Queues.StartTrade(this, detail);
 
                 if (type != PokeRoutineType.LanTrade)
-                {
                     if (type != PokeRoutineType.LanRoll)
-                    {
                         await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
-                    }
-                }
 
                 if (type == PokeRoutineType.LanTrade || type == PokeRoutineType.LanRoll)
                 {
