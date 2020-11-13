@@ -110,7 +110,7 @@ namespace SysBot.Pokemon
                     if (type != PokeRoutineType.LanRoll)
                         await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
 
-                if (type == PokeRoutineType.LanTrade || type == PokeRoutineType.LanRoll)
+                if (Hub.Config.Trade.BootLanBeforeEachTrade && (type == PokeRoutineType.LanTrade || type == PokeRoutineType.LanRoll))
                 {
                     Log("Rebooting into LAN Mode Just in Case We Got Disconnected");
                     await Click(X, 2_000, token).ConfigureAwait(false);
