@@ -26,14 +26,21 @@ namespace SysBot.Pokemon.Discord
         public void TradeInitialize(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
         {
             var receive = Data.Species == 0 ? string.Empty : $" ({Data.Nickname})";
-            Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
+
+            if (info.Type == PokeTradeType.LanRoll || info.Type == PokeTradeType.LanTrade)
+                Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Since we are on LAN, you don't need to search with a code.").ConfigureAwait(false);
+            else
+                Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
         }
 
         public void TradeSearching(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
         {
             var name = Info.TrainerName;
             var trainer = string.IsNullOrEmpty(name) ? string.Empty : $", {name}";
-            Context.User.SendMessageAsync($"I'm waiting for you{trainer}! Your code is **{Code:0000 0000}**. My IGN is **{routine.InGameName}**.").ConfigureAwait(false);
+            if (info.Type == PokeTradeType.LanRoll || info.Type == PokeTradeType.LanTrade)
+                Context.User.SendMessageAsync($"I'm waiting for you{trainer}! My IGN is **{routine.InGameName}**.").ConfigureAwait(false);
+            else
+                Context.User.SendMessageAsync($"I'm waiting for you{trainer}! Your code is **{Code:0000 0000}**. My IGN is **{routine.InGameName}**.").ConfigureAwait(false);
 
             string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"On Trade #{info.ID}")}";
             Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
@@ -88,7 +95,8 @@ namespace SysBot.Pokemon.Discord
             Context.User.SendMessageAsync(message).ConfigureAwait(false);
             if (result.Species != 0 && Hub.Config.Discord.ReturnPK8s)
             {
-                Context.User.SendPKMAsync(result, "Here's what you traded me!").ConfigureAwait(false);
+                Context.User.SendMessageAsync("Here is what you traded me!").ConfigureAwait(false);
+                Context.User.SendPKMAsync(result, "").ConfigureAwait(false);
                 Context.User.SendUserPKMAsShowdownSetAsync(result).ConfigureAwait(false);
             }
                 
