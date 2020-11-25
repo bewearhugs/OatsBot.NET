@@ -54,6 +54,10 @@ namespace SysBot.Pokemon
 
         [Category(Bots)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
+        public LanTradeSettings LanTrade { get; set; } = new LanTradeSettings();
+
+        [Category(Bots)]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public SeedCheckSettings SeedCheck { get; set; } = new SeedCheckSettings();
 
         [Category(Bots), Description("Settings for idle distribution trades.")]

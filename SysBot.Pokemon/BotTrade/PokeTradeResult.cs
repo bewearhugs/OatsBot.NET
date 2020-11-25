@@ -16,6 +16,7 @@
         RecoverPostLinkCode,
         RecoverOpenBox,
         RecoverReturnOverworld,
+        IncorrectIGN,
     }
 
     public static class PokeTradeResultExtensions

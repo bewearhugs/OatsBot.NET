@@ -16,17 +16,23 @@ namespace SysBot.Pokemon
         private readonly PokeTradeQueue<T> PowerUp = new PokeTradeQueue<T>(PokeTradeType.PowerUp);
         private readonly PokeTradeQueue<T> EggRoll = new PokeTradeQueue<T>(PokeTradeType.EggRoll);
         private readonly PokeTradeQueue<T> Dump = new PokeTradeQueue<T>(PokeTradeType.Dump);
+        private readonly PokeTradeQueue<T> LanTrade = new PokeTradeQueue<T>(PokeTradeType.LanTrade);
         private readonly PokeTradeQueue<T> LanRoll = new PokeTradeQueue<T>(PokeTradeType.LanRoll);
         public readonly TradeQueueInfo<T> Info;
         public readonly PokeTradeQueue<T>[] AllQueues;
+        public readonly PokeTradeQueue<T>[] LanQueues;
 
         public TradeQueueManager(PokeTradeHub<T> hub)
         {
             Hub = hub;
             Info = new TradeQueueInfo<T>(hub);
-            AllQueues = new[] { Seed, Dump, Clone, FixOT, PowerUp, EggRoll, LanRoll, Trade };
+            AllQueues = new[] { Seed, Dump, Clone, FixOT, PowerUp, EggRoll, LanTrade, LanRoll, Trade };
+            LanQueues = new[] { LanTrade, LanRoll };
 
             foreach (var q in AllQueues)
+                q.Queue.Settings = hub.Config.Favoritism;
+
+            foreach (var q in LanQueues)
                 q.Queue.Settings = hub.Config.Favoritism;
         }
 
@@ -40,6 +46,7 @@ namespace SysBot.Pokemon
                 PokeRoutineType.PowerUp => PowerUp,
                 PokeRoutineType.EggRoll => EggRoll,
                 PokeRoutineType.Dump => Dump,
+                PokeRoutineType.LanTrade => LanTrade,
                 PokeRoutineType.LanRoll => LanRoll,
                 _ => Trade,
             };
@@ -72,6 +79,10 @@ namespace SysBot.Pokemon
         {
             if (type == PokeRoutineType.FlexTrade)
                 return GetFlexDequeue(out detail, out priority);
+
+            var cfg = Hub.Config.Queues;
+            if (type == PokeRoutineType.LanTrade)
+                return GetLanDequeue(cfg, out detail, out priority);
 
             return TryDequeueInternal(type, out detail, out priority);
         }
@@ -145,6 +156,44 @@ namespace SysBot.Pokemon
             if (TryDequeueInternal(PokeRoutineType.LinkTrade, out detail, out priority))
                 return true;
             return false;
+        }
+
+        private bool GetLanDequeue(QueueSettings cfg, out PokeTradeDetail<T> detail, out uint priority)
+        {
+            PokeTradeQueue<T>? preferredQueue = null;
+            long bestWeight = 0; // prefer higher weights
+            uint bestPriority = uint.MaxValue; // prefer smaller
+            foreach (var q in LanQueues)
+            {
+                var peek = q.TryPeek(out detail, out priority);
+                if (!peek)
+                    continue;
+
+                // priority queue is a min-queue, so prefer smaller priorities
+                if (priority > bestPriority)
+                    continue;
+
+                var count = q.Count;
+                var time = detail.Time;
+                var weight = cfg.GetWeight(count, time, q.Type);
+
+                if (priority >= bestPriority && weight <= bestWeight)
+                    continue; // not good enough to be preferred over the other.
+
+                // this queue has the most preferable priority/weight so far!
+                bestWeight = weight;
+                bestPriority = priority;
+                preferredQueue = q;
+            }
+
+            if (preferredQueue == null)
+            {
+                detail = default!;
+                priority = default;
+                return false;
+            }
+
+            return preferredQueue.TryDequeue(out detail, out priority);
         }
 
         public void Enqueue(PokeRoutineType type, PokeTradeDetail<T> detail, uint priority)

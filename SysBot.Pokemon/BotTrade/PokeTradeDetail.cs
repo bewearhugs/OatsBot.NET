@@ -20,11 +20,12 @@ namespace SysBot.Pokemon
         public readonly int ID; // unique incremented ID
 
         public readonly ulong DiscordUserId;
+        public readonly string RequestedIgn;
 
         public bool IsSynchronized => Type == PokeTradeType.Random;
         public bool IsRetry;
 
-        public PokeTradeDetail(TPoke pkm, PokeTradeTrainerInfo info, IPokeTradeNotifier<TPoke> notifier, PokeTradeType type, int code, ulong disUserId, bool favored = false)
+        public PokeTradeDetail(TPoke pkm, PokeTradeTrainerInfo info, IPokeTradeNotifier<TPoke> notifier, PokeTradeType type, int code, ulong disUserId, bool favored = false, string reqIgn = "")
         {
             Code = code;
             TradeData = pkm;
@@ -35,6 +36,7 @@ namespace SysBot.Pokemon
             IsFavored = favored;
 
             DiscordUserId = disUserId;
+            RequestedIgn = reqIgn;
 
             ID = Interlocked.Increment(ref CreatedCount) % 3000;
         }

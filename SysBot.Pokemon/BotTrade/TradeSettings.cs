@@ -46,11 +46,7 @@ namespace SysBot.Pokemon
         [Category(TradeCode), Description("Enter Channel ID(s) where $roll should be active, or leave blank.")]
         public string EggRollChannels { get; set; } = string.Empty;
 
-        [Category(TradeCode), Description("Enter the amount of time in hours until a user can requeue.")]
-        public double EggRollCooldown { get; set; } = 0.5;
-
-        [Category(TradeCode), Description("Only works on LAN trading routines. Helpful feature when using LanTrade that boots into LAN mode before every trade.")]
-        public bool BootLanBeforeEachTrade { get; set; } = true;
+        
 
         /// <summary>
         /// Gets a random trade code based on the range settings.

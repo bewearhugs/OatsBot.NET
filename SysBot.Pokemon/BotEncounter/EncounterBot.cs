@@ -220,7 +220,6 @@ namespace SysBot.Pokemon
                     await Click(B, 1_000, token).ConfigureAwait(false);
                     await Click(A, 1_000, token).ConfigureAwait(false);
                 }
-                    
 
                 Log("Encounter started! Checking details...");
                 var pk = await ReadUntilPresent(WildPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);

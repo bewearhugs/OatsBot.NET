@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using PKHeX.Core;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,13 +9,97 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
     public class LanTradeModule : ModuleBase<SocketCommandContext>
     {
         private static TradeQueueInfo<PK8> Info => SysCordInstance.Self.Hub.Queues.Info;
+        const int gen = 8;
+
+        [Command("lantrade")]
+        [Alias("lt")]
+        [Summary("Makes the bot trade you the possibly illegal attached file.")]
+        [RequireQueueRole(nameof(DiscordManager.RolesLanTrade))]
+        public async Task LanTradeAttachAsync()
+        {
+            var attachment = Context.Message.Attachments.FirstOrDefault();
+            if (attachment == default)
+            {
+                await ReplyAsync("No attachment provided!").ConfigureAwait(false);
+                return;
+            }
+
+            var att = await NetUtil.DownloadPKMAsync(attachment).ConfigureAwait(false);
+            if (!att.Success || !(att.Data is PK8 pk8))
+            {
+                await ReplyAsync("No PK8 attachment provided!").ConfigureAwait(false);
+                return;
+            }
+
+            if (!pk8.CanBeTraded())
+            {
+                var msg = "Provided Pokémon content is blocked from trading!";
+                await ReplyAsync($"{msg}").ConfigureAwait(false);
+                return;
+            }
+
+            var code = Info.GetRandomTradeCode(); // Ignored, but used for method arguments
+            var sig = Context.User.GetFavor();
+            await Context.AddToQueueAsync(code, Context.User.Username, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade).ConfigureAwait(false);
+        }
+
+        [Command("lantrade")]
+        [Alias("lt")]
+        [Summary("Makes the bot trade you the possibly illegal attached file.")]
+        [RequireQueueRole(nameof(DiscordManager.RolesLanTrade))]
+        public async Task LanTradeAttachAsync([Summary("User Requested IGN")][Remainder] string content = "")
+        {
+            int numLines = content.Split('\n').Length; // To determine if content is Showdown
+
+            if (content.Length <= 12 && Info.Hub.Config.LanTrade.RequeueWhenSpecificIgnNotFound)
+            {
+                var attachment = Context.Message.Attachments.FirstOrDefault();
+                if (attachment == default)
+                {
+                    await ReplyAsync("No attachment provided!").ConfigureAwait(false);
+                    return;
+                }
+
+                var att = await NetUtil.DownloadPKMAsync(attachment).ConfigureAwait(false);
+                if (!att.Success || !(att.Data is PK8 pk8))
+                {
+                    await ReplyAsync("No PK8 attachment provided!").ConfigureAwait(false);
+                    return;
+                }
+
+                if (!pk8.CanBeTraded())
+                {
+                    var msg = "Provided Pokémon content is blocked from trading!";
+                    await ReplyAsync($"{msg}").ConfigureAwait(false);
+                    return;
+                }
+
+                var code = Info.GetRandomTradeCode(); // Ignored, but used for method arguments
+                var sig = Context.User.GetFavor();
+                await Context.AddToQueueAsync(code, Context.User.Username, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade, content).ConfigureAwait(false);
+            }
+            else if (content.Length > 12 && numLines > 1)
+                await ReplyAsync("Showdown Sets are disabled for LAN Trading.").ConfigureAwait(false);
+            else if (content.Length > 12 && numLines == 1 && Info.Hub.Config.LanTrade.RequeueWhenSpecificIgnNotFound)
+                await ReplyAsync("IGN cannot exceed 12 characters.");
+            else // If an IGN is specified but host does not have RequeueWhenSpecificIgnNotFound on, do normal lantrade command
+                await LanTradeAttachAsync().ConfigureAwait(false);
+        }
+
 
         [Command("lanroll")]
         [Alias("lroll", "lr")]
-        [Summary("Makes the bot trade you a completely random and illegal egg via LAN")]
-        [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
-        public async Task LanRollAsync()
+        [Summary("Makes the bot trade you a completely random and possibly illegal egg via LAN.")]
+        [RequireQueueRole(nameof(DiscordManager.RolesLanRoll))]
+        public async Task LanRollAsync([Summary("User Requested IGN")][Remainder] string ign = "")
         {
+
+            if (ign.Length > 12)
+            {
+                await ReplyAsync("IGN cannot exceed 12 characters.").ConfigureAwait(false);
+                return;
+            }
+
             var code = Info.GetRandomTradeCode();
 
             int[] existantMon =
@@ -71,8 +154,8 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                 set = new ShowdownSet($"Egg({SpeciesName.GetSpeciesName(rng.Next(new Zukan8Index(Zukan8Type.None, 1).Index, GameUtil.GetMaxSpeciesID(GameVersion.SWSH)), 2)})");
 
             var template = AutoLegalityWrapper.GetTemplate(set);
-            var sav = AutoLegalityWrapper.GetTrainerInfo(8);
-            var pkm = (PK8)sav.GetLegal(template, out _);
+            var sav = AutoLegalityWrapper.GetTrainerInfo(gen);
+            var pkm = (PK8)sav.GetLegal(template, out _); ;
 
             LanRollTrade(pkm);
 
@@ -81,7 +164,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
 
             pkm.ResetPartyStats();
             var sig = Context.User.GetFavor();
-            await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.LanTrade, PokeTradeType.LanRoll).ConfigureAwait(false);
+            await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.LanRoll, PokeTradeType.LanRoll, ign).ConfigureAwait(false);
         }
 
         public static void LanRollTrade(PK8 pkm)
@@ -103,7 +186,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                 int formRng = rng.Next(0, formIndex1.Length);
                 int formRng2 = rng.Next(0, formIndex2.Length);
 
-                if (pkm.Species != 52) // Checks for Meowth because he's got 2 regional forms. (Why???)
+                if (pkm.Species != 52) // Checks for Meowth because he's got 2 regional forms
                     pkm.SetAltForm(formIndex1[formRng]);
                 else pkm.SetAltForm(formIndex2[formRng2]);
             }
@@ -115,7 +198,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             int randomBall = rng.Next(0, pkm.MaxBallID);
             pkm.Ball = randomBall;
 
-            // Source: https://bulbapedia.bulbagarden.net/wiki/Ability#List_of_Abilities because I forget where I get lists of stuff I use...
+            // Source: https://bulbapedia.bulbagarden.net/wiki/Ability#List_of_Abilities
             // https://game8.co/games/pokemon-sword-shield/archives/271828 to see if it exists in the game.
             int[] vaildAbilities =
                 { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22,
@@ -123,21 +206,22 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                   43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 61, 62,
                   63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 75, 77, 78, 79, 80, 81, 82, 83,
                   84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 97, 98, 99, 100, 101, 102, 103,
-                  104, 105, 106, 107, 108, 109, 110, 111, 113, 114, 115, 116, 117, 118, 119,
-                  120, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 133, 134, 135, 139,
-                  140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154,
-                  155, 156, 157, 158, 159, 160, 161, 163, 164, 165, 166, 167, 169, 170, 171,
-                  172, 173, 175, 176, 177, 178, 180, 181, 182, 183, 192, 193, 194, 195, 196,
-                  198, 199, 200, 201, 202, 203, 204, 205, 207, 208, 209, 212, 214, 215, 217,
-                  218, 220, 221, 222, 225, 226, 227, 228, 229, 230, 231, 232, 234, 235, 236,
-                  237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
-                  252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265 }; // 266/267 (As One) is not on here because it is IN TESTING.
+                  104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
+                  119, 120, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134,
+                  135, 136, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150,
+                  151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165,
+                  166, 167, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 180, 181, 182,
+                  183, 186, 187, 188, 192, 193, 194, 195, 196, 198, 199, 200, 201, 202, 203,
+                  204, 205, 207, 208, 209, 211, 212, 214, 215, 217, 218, 220, 221, 222, 224,
+                  225, 226, 227, 228, 229, 230, 231, 232, 234, 235, 236, 237, 238, 239, 240,
+                  241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255,
+                  256, 257, 258, 259, 260, 261, 262, 263, 264, 265 }; // 266/267 (As One) is not on here because it's meh...
 
             int abilityNum = rng.Next(0, vaildAbilities.Length);
 
             pkm.Ability = vaildAbilities[abilityNum];
 
-            // Source: https://bulbapedia.bulbagarden.net/wiki/List_of_moves because I suck...
+            // Source: https://bulbapedia.bulbagarden.net/wiki/List_of_moves
             int[] invalidMoves =
                 { 2, 3, 4, 13, 26, 27, 41, 49, 82, 96, 99, 112, 117, 119, 121, 125, 128, 131,
                   132, 134, 140, 145, 146, 148, 149, 159, 169, 171, 185, 193, 216, 218, 222,
@@ -149,7 +233,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                   653, 654, 655, 656, 657, 658, 695, 696, 697, 698, 699, 700, 701, 702, 703,
                   717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731,
                   732, 733, 734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 757, 758, 759,
-                  760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774};
+                  760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774 };
 
             int moveRng1 = rng.Next(0, pkm.MaxMoveID);
             int moveRng2 = rng.Next(0, pkm.MaxMoveID);
@@ -201,7 +285,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
 
             switch (shinyOdds[shinyRng])
             {
-                case 3: CommonEdits.SetShiny(pkm, Shiny.Never); pkm.SetUnshiny(); break;
+                case 3: pkm.SetUnshiny(); break;
                 case 5: CommonEdits.SetShiny(pkm, Shiny.AlwaysStar); break;
                 case 6: CommonEdits.SetShiny(pkm, Shiny.AlwaysSquare); break;
             }

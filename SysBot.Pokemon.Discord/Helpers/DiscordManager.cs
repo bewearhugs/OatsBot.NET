@@ -21,6 +21,8 @@ namespace SysBot.Pokemon.Discord
         public readonly SensitiveSet<string> RolesPowerUp = new SensitiveSet<string>();
         public readonly SensitiveSet<string> RolesEggRoll = new SensitiveSet<string>();
         public readonly SensitiveSet<string> RolesTrade = new SensitiveSet<string>();
+        public readonly SensitiveSet<string> RolesLanTrade = new SensitiveSet<string>();
+        public readonly SensitiveSet<string> RolesLanRoll = new SensitiveSet<string>();
         public readonly SensitiveSet<string> RolesSeed = new SensitiveSet<string>();
         public readonly SensitiveSet<string> RolesDump = new SensitiveSet<string>();
         public readonly SensitiveSet<string> RolesRemoteControl = new SensitiveSet<string>();
@@ -71,6 +73,8 @@ namespace SysBot.Pokemon.Discord
                 nameof(RolesPowerUp) => RolesPowerUp,
                 nameof(RolesEggRoll) => RolesEggRoll,
                 nameof(RolesTrade) => RolesTrade,
+                nameof(RolesLanTrade) => RolesLanTrade,
+                nameof(RolesLanRoll) => RolesLanRoll,
                 nameof(RolesSeed) => RolesSeed,
                 nameof(RolesDump) => RolesDump,
                 nameof(RolesRemoteControl) => RolesRemoteControl,
@@ -85,34 +89,37 @@ namespace SysBot.Pokemon.Discord
             WhitelistedChannels.Read(cfg.Discord.ChannelWhitelist, ulong.Parse);
 
             SudoDiscord.Read(cfg.Discord.GlobalSudoList, ulong.Parse);
-            SudoRoles.Read(cfg.Discord.RoleSudo, z => z);
-            FavoredRoles.Read(cfg.Discord.RoleFavored, z => z);
+            SudoRoles.Read(cfg.Discord.RoleSettings.RoleSudo, z => z);
+            FavoredRoles.Read(cfg.Discord.RoleSettings.RoleFavored, z => z);
 
-            RolesClone.Read(cfg.Discord.RoleCanClone, z => z);
-            RolesFixOT.Read(cfg.Discord.RoleCanFixOT, z => z);
-            RolesPowerUp.Read(cfg.Discord.RoleCanPowerUp, z => z);
-            RolesEggRoll.Read(cfg.Discord.RoleCanEggRoll, z => z);
-            RolesTrade.Read(cfg.Discord.RoleCanTrade, z => z);
-            RolesSeed.Read(cfg.Discord.RoleCanSeedCheck, z => z);
-            RolesDump.Read(cfg.Discord.RoleCanDump, z => z);
-            RolesRemoteControl.Read(cfg.Discord.RoleRemoteControl, z => z);
+            RolesClone.Read(cfg.Discord.RoleSettings.RoleCanClone, z => z);
+            RolesFixOT.Read(cfg.Discord.RoleSettings.RoleCanFixOT, z => z);
+            RolesPowerUp.Read(cfg.Discord.RoleSettings.RoleCanPowerUp, z => z);
+            RolesEggRoll.Read(cfg.Discord.RoleSettings.RoleCanEggRoll, z => z);
+            RolesTrade.Read(cfg.Discord.RoleSettings.RoleCanTrade, z => z);
+            RolesLanTrade.Read(cfg.Discord.RoleSettings.RoleCanLanTrade, z => z);
+            RolesLanRoll.Read(cfg.Discord.RoleSettings.RoleCanLanRoll, z => z);
+            RolesSeed.Read(cfg.Discord.RoleSettings.RoleCanSeedCheck, z => z);
+            RolesDump.Read(cfg.Discord.RoleSettings.RoleCanDump, z => z);
+            RolesRemoteControl.Read(cfg.Discord.RoleSettings.RoleRemoteControl, z => z);
         }
 
         public void Write()
         {
             Config.Discord.UserBlacklist = BlacklistedUsers.Write();
             Config.Discord.ChannelWhitelist = WhitelistedChannels.Write();
-            Config.Discord.RoleSudo = SudoRoles.Write();
+            Config.Discord.RoleSettings.RoleSudo = SudoRoles.Write();
             Config.Discord.GlobalSudoList = SudoDiscord.Write();
-            Config.Discord.RoleFavored = FavoredRoles.Write();
-
-            Config.Discord.RoleCanClone = RolesClone.Write();
-            Config.Discord.RoleCanFixOT = RolesFixOT.Write();
-            Config.Discord.RoleCanPowerUp = RolesPowerUp.Write();
-            Config.Discord.RoleCanEggRoll = RolesEggRoll.Write();
-            Config.Discord.RoleCanTrade = RolesTrade.Write();
-            Config.Discord.RoleCanSeedCheck = RolesSeed.Write();
-            Config.Discord.RoleCanDump = RolesDump.Write();
+            Config.Discord.RoleSettings.RoleFavored = FavoredRoles.Write();
+            Config.Discord.RoleSettings.RoleCanClone = RolesClone.Write();
+            Config.Discord.RoleSettings.RoleCanFixOT = RolesFixOT.Write();
+            Config.Discord.RoleSettings.RoleCanPowerUp = RolesPowerUp.Write();
+            Config.Discord.RoleSettings.RoleCanEggRoll = RolesEggRoll.Write();
+            Config.Discord.RoleSettings.RoleCanTrade = RolesTrade.Write();
+            Config.Discord.RoleSettings.RoleCanLanTrade = RolesLanTrade.Write();
+            Config.Discord.RoleSettings.RoleCanLanRoll = RolesLanRoll.Write();
+            Config.Discord.RoleSettings.RoleCanSeedCheck = RolesSeed.Write();
+            Config.Discord.RoleSettings.RoleCanDump = RolesDump.Write();
         }
     }
 }

@@ -110,8 +110,9 @@ namespace SysBot.Pokemon
                     if (type != PokeRoutineType.LanRoll)
                         await EnsureConnectedToYComm(Hub.Config, token).ConfigureAwait(false);
 
-                if (Hub.Config.Trade.BootLanBeforeEachTrade && (type == PokeRoutineType.LanTrade || type == PokeRoutineType.LanRoll))
+                if (Hub.Config.LanTrade.BootLanBeforeEachTrade && (type == PokeRoutineType.LanTrade || type == PokeRoutineType.LanRoll))
                 {
+                    await Task.Delay(2_000, token).ConfigureAwait(false);
                     Log("Rebooting into LAN Mode Just in Case We Got Disconnected");
                     await Click(X, 2_000, token).ConfigureAwait(false);
                     await Click(A, 4_000, token).ConfigureAwait(false);
@@ -195,16 +196,8 @@ namespace SysBot.Pokemon
             Log("Selecting Link Trade");
             await Click(A, 1_500, token).ConfigureAwait(false);
 
-            if (poke.Type == PokeTradeType.LanTrade || poke.Type == PokeTradeType.LanRoll)
-            {
-                Log("Selecting Regular Link Trade");
-                await Click(A, 1_500, token).ConfigureAwait(false);
-            }
-            else
-            {
-                Log("Selecting Link Trade Code");
-                await Click(DDOWN, 500, token).ConfigureAwait(false);
-            }
+            Log("Selecting Link Trade Code");
+            await Click(DDOWN, 500, token).ConfigureAwait(false);
 
             for (int i = 0; i < 2; i++)
                 await Click(A, 1_500, token).ConfigureAwait(false);
@@ -213,25 +206,21 @@ namespace SysBot.Pokemon
             if (GameLang != LanguageID.English && GameLang != LanguageID.Spanish)
                 await Click(A, 1_500, token).ConfigureAwait(false);
 
-            // Skip code because codes don't matter on LAN
-            if (poke.Type != PokeTradeType.LanTrade && poke.Type != PokeTradeType.LanRoll)
-            {
-                // Loading Screen
-                await Task.Delay(1_000, token).ConfigureAwait(false);
-                if (poke.Type != PokeTradeType.Random)
-                    Hub.Config.Stream.StartEnterCode(this);
-                await Task.Delay(1_000, token).ConfigureAwait(false);
+            // Loading Screen
+            await Task.Delay(1_000, token).ConfigureAwait(false);
+            if (poke.Type != PokeTradeType.Random)
+                Hub.Config.Stream.StartEnterCode(this);
+            await Task.Delay(1_000, token).ConfigureAwait(false);
 
-                var code = poke.Code;
-                Log($"Entering Link Trade Code: {code:0000 0000}...");
-                await EnterTradeCode(code, Hub.Config, token).ConfigureAwait(false);
+            var code = poke.Code;
+            Log($"Entering Link Trade Code: {code:0000 0000}...");
+            await EnterTradeCode(code, Hub.Config, token).ConfigureAwait(false);
 
-                // Wait for Barrier to trigger all bots simultaneously.
-                WaitAtBarrierIfApplicable(token);
-                await Click(PLUS, 1_000, token).ConfigureAwait(false);
+            // Wait for Barrier to trigger all bots simultaneously.
+            WaitAtBarrierIfApplicable(token);
+            await Click(PLUS, 1_000, token).ConfigureAwait(false);
 
-                Hub.Config.Stream.EndEnterCode(this);
-            }
+            Hub.Config.Stream.EndEnterCode(this);
 
             // Confirming and return to overworld.
             var delay_count = 0;
@@ -269,6 +258,14 @@ namespace SysBot.Pokemon
 
             var TrainerName = await GetTradePartnerName(TradeMethod.LinkTrade, token).ConfigureAwait(false);
             Log($"Found Trading Partner: {TrainerName}...");
+
+            if (poke.RequestedIgn != string.Empty && TrainerName != poke.RequestedIgn && (poke.Type == PokeTradeType.LanTrade || poke.Type == PokeTradeType.LanRoll))
+            {
+                poke.SendNotification(this, $"Found Trading Partner: {TrainerName}. This does not match your Requested IGN ({poke.RequestedIgn}).");
+                Log("IGN Requested does not match Trading Partner.");
+                await ExitTrade(Hub.Config, false, token).ConfigureAwait(false);
+                return PokeTradeResult.IncorrectIGN;
+            }
 
             if (GetAltAccount(poke, TrainerName) != "")
                 Log($"<@{Hub.Config.Discord.PingUserOnAltDetection}> Potential Alt Detected! I have matched an IGN with 2 different Discord accounts. IGN: {TrainerName} | New User ID: {poke.DiscordUserId} | Old User ID: {GetAltAccount(poke, TrainerName)}");
@@ -527,6 +524,8 @@ namespace SysBot.Pokemon
                     counts.AddCompletedPowerUps();
                 else if (poke.Type == PokeTradeType.EggRoll)
                     counts.AddCompletedEggRolls();
+                else if (poke.Type == PokeTradeType.LanTrade)
+                    counts.AddCompletedLanTrades();
                 else if (poke.Type == PokeTradeType.LanRoll)
                     counts.AddCompletedLanRolls();
                 else

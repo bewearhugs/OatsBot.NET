@@ -36,9 +36,8 @@ namespace SysBot.Pokemon
         public static int[] regional = { 27, 37, 50, 52, 77, 79, 83, 122, 222, 263, 554, 562, 618 };
 
         public static int[] shinyOdds = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                                          3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                                          3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                                          5, 5, 5, 5, 5, 5, 5, 6, 6, 6};
+                                          3, 3, 3, 3, 3, 5, 5, 5, 5, 5,
+                                          5, 5, 5, 5, 5, 6, 6, 6, 6, 6};
 
         public static int[] abilityIndex = { 0, 1, 2 };
         public static int[] formIndex1 = { 0, 1 };

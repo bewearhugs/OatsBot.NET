@@ -26,11 +26,7 @@ namespace SysBot.Pokemon.Discord
         public void TradeInitialize(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
         {
             var receive = Data.Species == 0 ? string.Empty : $" ({Data.Nickname})";
-
-            if (info.Type == PokeTradeType.LanRoll || info.Type == PokeTradeType.LanTrade)
-                Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Since we are on LAN, you don't need to search with a code.").ConfigureAwait(false);
-            else
-                Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
+            Context.User.SendMessageAsync($"Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
         }
 
         public void TradeSearching(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
@@ -95,19 +91,7 @@ namespace SysBot.Pokemon.Discord
             Context.User.SendMessageAsync(message).ConfigureAwait(false);
             if (result.Species != 0 && Hub.Config.Discord.ReturnPK8s)
             {
-                Context.User.SendMessageAsync("Here is what you traded me!").ConfigureAwait(false);
-                Context.User.SendPKMAsync(result, "").ConfigureAwait(false);
-                Context.User.SendUserPKMAsShowdownSetAsync(result).ConfigureAwait(false);
-            }
-                
-
-            if (info.Type == PokeTradeType.EggRoll && Hub.Config.Trade.EggRollCooldown > 0) // Add cooldown if trade completed
-            {
-                var id = Context.User.Id.ToString();
-                var line = TradeExtensions.EggRollCooldown.FirstOrDefault(z => z.Contains(id));
-                if (line != null)
-                    TradeExtensions.EggRollCooldown.Remove(TradeExtensions.EggRollCooldown.FirstOrDefault(z => z.Contains(id)));
-                TradeExtensions.EggRollCooldown.Add($"{id},{DateTime.Now}");
+                Context.User.SendPKMAsync(result, $"Here is what you traded me!{(info.Type != PokeTradeType.LanTrade && info.Type != PokeTradeType.LanRoll /* Don't want people thinking Showdown works on LAN */? $"\n{ReusableActions.GetFormattedShowdownText(result)}" : "")}").ConfigureAwait(false);
             }
         }
 

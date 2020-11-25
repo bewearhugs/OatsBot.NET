@@ -43,7 +43,7 @@ namespace SysBot.Pokemon
         [Category(Generate), Description("Bot will create an Easter Egg Pokémon if provided an illegal set.")]
         public bool EnableEasterEggs { get; set; } = false;
 
-        [Category(Generate), Description("When set, the bot will only send a Pokémon if it is legal! *This option controls the ability to LAN Trade!* (false = LAN, true = Online)")]
+        [Category(Generate), Description("When set, the bot will only send a Pokémon if it is legal! This option is ignored for LAN routines.")]
         public bool VerifyLegality { get; set; } = true;
 
         [Category(Generate), Description("Allow users to submit custom OT, TID, SID, and OT Gender in Showdown sets.")]

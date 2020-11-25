@@ -116,12 +116,6 @@ namespace SysBot.Pokemon.Discord
                 if (await TrollAsync(invalid, template).ConfigureAwait(false))
                     return;
             }
-            else if (!Info.Hub.Config.Legality.VerifyLegality)
-            {
-                var msg = $"Unable to use Showdown Set for LAN Trading.";
-                await ReplyAsync(msg).ConfigureAwait(false);
-                return;
-            }
 
             pkm.ResetPartyStats();
             var sig = Context.User.GetFavor();
@@ -157,21 +151,6 @@ namespace SysBot.Pokemon.Discord
             if (!Info.Hub.Config.Trade.EggRollChannels.Contains(Context.Channel.Id.ToString()) && !Info.Hub.Config.Trade.EggRollChannels.Equals(""))
             {
                 await ReplyAsync($"You're typing the command in the wrong channel!").ConfigureAwait(false);
-                return;
-            }
-
-            if (Info.Hub.Config.Trade.EggRollCooldown < 0)
-                Info.Hub.Config.Trade.EggRollCooldown = default;
-
-            var id = Context.User.Id.ToString();
-            var line = TradeExtensions.EggRollCooldown.FirstOrDefault(z => z.Contains(id));
-            System.DateTime.TryParse(line != null ? line.Split(',')[1] : string.Empty, out System.DateTime time);
-            var timer = time.AddHours(Info.Hub.Config.Trade.EggRollCooldown);
-            var timeRemaining = timer - System.DateTime.Now;
-
-            if (System.DateTime.Now < timer)
-            {
-                await ReplyAsync($"{Context.User.Mention}, please try again in {timeRemaining.Hours:N0}h : {timeRemaining.Minutes:N0}m : {timeRemaining.Seconds:N0}s!").ConfigureAwait(false);
                 return;
             }
 
@@ -217,7 +196,7 @@ namespace SysBot.Pokemon.Discord
 
             switch (TradeExtensions.shinyOdds[shinyRng])
             {
-                case 3: CommonEdits.SetShiny(pkm, Shiny.Never); pkm.SetUnshiny(); break;
+                case 3: pkm.SetUnshiny(); break;
                 case 5: CommonEdits.SetShiny(pkm, Shiny.AlwaysStar); break;
                 case 6: CommonEdits.SetShiny(pkm, Shiny.AlwaysSquare); break;
             }
@@ -248,9 +227,7 @@ namespace SysBot.Pokemon.Discord
 
             var la = new LegalityAnalysis(pk8);
 
-            if (!Info.Hub.Config.Legality.VerifyLegality)
-                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade).ConfigureAwait(false);
-            else if (!la.Valid && Info.Hub.Config.Legality.VerifyLegality)
+            if (!la.Valid && Info.Hub.Config.Legality.VerifyLegality)
                 await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
             else
                 await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);

@@ -7,7 +7,6 @@ namespace SysBot.Pokemon
         private const string Startup = nameof(Startup);
         private const string Operation = nameof(Operation);
         private const string Whitelists = nameof(Whitelists);
-        private const string DefaultDisable = "DISABLE";
         public override string ToString() => "Discord Integration Settings";
 
         // Startup
@@ -32,37 +31,11 @@ namespace SysBot.Pokemon
 
         // Whitelists
 
-        [Category(Whitelists), Description("Users with this role are allowed to enter the Trade queue.")]
-        public string RoleCanTrade { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to enter the Seed Check queue.")]
-        public string RoleCanSeedCheck { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to enter the Clone queue.")]
-        public string RoleCanClone { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to enter the FixOT queue.")]
-        public string RoleCanFixOT { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to enter the PowerUp queue.")]
-        public string RoleCanPowerUp { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to enter the EggRoll queue.")]
-        public string RoleCanEggRoll { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to enter the Dump queue.")]
-        public string RoleCanDump { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to remotely control the console (if running as Remote Control Bot.")]
-        public string RoleRemoteControl { get; set; } = DefaultDisable;
-
-        [Category(Whitelists), Description("Users with this role are allowed to bypass command restrictions.")]
-        public string RoleSudo { get; set; } = DefaultDisable;
+        [Category(Operation), Description("Discord Role Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public DiscordRoleSettings RoleSettings { get; set; } = new DiscordRoleSettings();
 
         // Operation
-
-        [Category(Operation), Description("Users with this role are allowed to join the queue with a better position.")]
-        public string RoleFavored { get; set; } = DefaultDisable;
 
         [Category(Operation), Description("Users with these user IDs cannot use the bot.")]
         public string UserBlacklist { get; set; } = string.Empty;
@@ -105,5 +78,50 @@ namespace SysBot.Pokemon
 
         [Category(Operation), Description("Display which Pokémon the user requested.")]
         public bool DisplayPokeName { get; set; } = false;
+    }
+
+    public class DiscordRoleSettings
+    {
+        private const string Roles = nameof(Roles);
+        private const string DefaultDisable = "DISABLE";
+        public override string ToString() => "Discord Role Settings";
+
+        // Role Settings
+
+        [Category(Roles), Description("Users with this role are allowed to enter the Trade queue.")]
+        public string RoleCanTrade { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the Seed Check queue.")]
+        public string RoleCanSeedCheck { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the Clone queue.")]
+        public string RoleCanClone { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the FixOT queue.")]
+        public string RoleCanFixOT { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the PowerUp queue.")]
+        public string RoleCanPowerUp { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the EggRoll queue.")]
+        public string RoleCanEggRoll { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the Dump queue.")]
+        public string RoleCanDump { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the LanTrade queue.")]
+        public string RoleCanLanTrade { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to enter the LanRoll queue.")]
+        public string RoleCanLanRoll { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to remotely control the console (if running as Remote Control Bot.")]
+        public string RoleRemoteControl { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to bypass command restrictions.")]
+        public string RoleSudo { get; set; } = DefaultDisable;
+
+        [Category(Roles), Description("Users with this role are allowed to join the queue with a better position.")]
+        public string RoleFavored { get; set; } = DefaultDisable;
     }
 }

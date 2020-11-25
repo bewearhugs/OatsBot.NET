@@ -42,52 +42,18 @@ namespace SysBot.Pokemon
 
         // Flex Users
 
-        [Category(UserBias), Description("Biases the Trade Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountTrade { get; set; } = 100;
-
-        [Category(UserBias), Description("Biases the Seed Check Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountSeedCheck { get; set; } = 100;
-
-        [Category(UserBias), Description("Biases the Clone Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountClone { get; set; } = 100;
-
-        [Category(UserBias), Description("Biases the FixOT Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountFixOT { get; set; } = 100;
-
-        [Category(UserBias), Description("Biases the PowerUp Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountPowerUp { get; set; } = 100;
-
-        [Category(UserBias), Description("Biases the EggRoll Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountEggRoll { get; set; } = 100;
-
-        [Category(UserBias), Description("Biases the Dump Queue's weight based on how many users are in the queue.")]
-        public int YieldMultCountDump { get; set; } = 100;
+        [Category(UserBias), Description("Yield Multiplier User Count Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public YieldMultCountSettings YieldMultCountSettings { get; set; } = new YieldMultCountSettings();
 
         // Flex Time
 
         [Category(TimeBias), Description("Determines whether the weight should be added or multiplied to the total weight.")]
         public FlexBiasMode YieldMultWait { get; set; } = FlexBiasMode.Multiply;
 
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the Trade queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitTrade { get; set; } = 1;
-
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the Seed Check queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitSeedCheck { get; set; } = 1;
-
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the Clone queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitClone { get; set; } = 1;
-
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the FixOT queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitFixOT { get; set; } = 1;
-
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the PowerUp queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitPowerUp { get; set; } = 1;
-
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the EggRoll queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitEggRoll { get; set; } = 1;
-
-        [Category(TimeBias), Description("Checks time elapsed since the user joined the Dump queue, and increases the queue's weight accordingly.")]
-        public int YieldMultWaitDump { get; set; } = 1;
+        [Category(UserBias), Description("Yield Multiplier User Count Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public YieldMultTimeSettings YieldMultTimeSettings { get; set; } = new YieldMultTimeSettings();
 
         [Category(TimeBias), Description("Multiplies the amount of users in queue to give an estimate of how much time it will take until the user is processed.")]
         public float EstimatedDelayFactor { get; set; } = 1.1f;
@@ -96,13 +62,15 @@ namespace SysBot.Pokemon
         {
             return type switch
             {
-                PokeTradeType.Seed => YieldMultCountSeedCheck,
-                PokeTradeType.Clone => YieldMultCountClone,
-                PokeTradeType.FixOT => YieldMultCountFixOT,
-                PokeTradeType.PowerUp => YieldMultCountPowerUp,
-                PokeTradeType.EggRoll => YieldMultCountEggRoll,
-                PokeTradeType.Dump => YieldMultCountDump,
-                _ => YieldMultCountTrade
+                PokeTradeType.Seed => YieldMultCountSettings.YieldMultCountSeedCheck,
+                PokeTradeType.Clone => YieldMultCountSettings.YieldMultCountClone,
+                PokeTradeType.FixOT => YieldMultCountSettings.YieldMultCountFixOT,
+                PokeTradeType.PowerUp => YieldMultCountSettings.YieldMultCountPowerUp,
+                PokeTradeType.EggRoll => YieldMultCountSettings.YieldMultCountEggRoll,
+                PokeTradeType.Dump => YieldMultCountSettings.YieldMultCountDump,
+                PokeTradeType.LanTrade => YieldMultCountSettings.YieldMultCountLanTrade,
+                PokeTradeType.LanRoll => YieldMultCountSettings.YieldMultCountLanRoll,
+                _ => YieldMultCountSettings.YieldMultCountTrade
             };
         }
 
@@ -110,13 +78,15 @@ namespace SysBot.Pokemon
         {
             return type switch
             {
-                PokeTradeType.Seed => YieldMultWaitSeedCheck,
-                PokeTradeType.Clone => YieldMultWaitClone,
-                PokeTradeType.FixOT => YieldMultWaitFixOT,
-                PokeTradeType.PowerUp => YieldMultWaitPowerUp,
-                PokeTradeType.EggRoll => YieldMultWaitEggRoll,
-                PokeTradeType.Dump => YieldMultWaitDump,
-                _ => YieldMultWaitTrade
+                PokeTradeType.Seed => YieldMultTimeSettings.YieldMultWaitSeedCheck,
+                PokeTradeType.Clone => YieldMultTimeSettings.YieldMultWaitClone,
+                PokeTradeType.FixOT => YieldMultTimeSettings.YieldMultWaitFixOT,
+                PokeTradeType.PowerUp => YieldMultTimeSettings.YieldMultWaitPowerUp,
+                PokeTradeType.EggRoll => YieldMultTimeSettings.YieldMultWaitEggRoll,
+                PokeTradeType.Dump => YieldMultTimeSettings.YieldMultWaitDump,
+                PokeTradeType.LanTrade => YieldMultTimeSettings.YieldMultWaitLanTrade,
+                PokeTradeType.LanRoll => YieldMultTimeSettings.YieldMultWaitLanRoll,
+                _ => YieldMultTimeSettings.YieldMultWaitTrade
             };
         }
 
@@ -147,6 +117,72 @@ namespace SysBot.Pokemon
         /// <param name="botct">Amount of bots processing requests</param>
         /// <returns>Estimated time in Minutes</returns>
         public float EstimateDelay(int position, int botct) => (EstimatedDelayFactor * position) / botct;
+    }
+
+    public class YieldMultCountSettings
+    {
+        private const string UserBias = nameof(UserBias);
+        public override string ToString() => "User Count Queue Settings";
+
+        [Category(UserBias), Description("Biases the Trade Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountTrade { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the Seed Check Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountSeedCheck { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the Clone Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountClone { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the FixOT Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountFixOT { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the PowerUp Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountPowerUp { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the EggRoll Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountEggRoll { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the Dump Queue's weight based on how many users are in the queue.")]
+        public int YieldMultCountDump { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the LanTrade Queue's weight based on how many users are in the queue. Not included in FlexTrade.")]
+        public int YieldMultCountLanTrade { get; set; } = 100;
+
+        [Category(UserBias), Description("Biases the LanRoll Queue's weight based on how many users are in the queue. Not included in FlexTrade.")]
+        public int YieldMultCountLanRoll { get; set; } = 100;
+    }
+
+    public class YieldMultTimeSettings
+    {
+        private const string TimeBias = nameof(TimeBias);
+        public override string ToString() => "Time Waited Queue Settings";
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the Trade queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitTrade { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the Seed Check queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitSeedCheck { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the Clone queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitClone { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the FixOT queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitFixOT { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the PowerUp queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitPowerUp { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the EggRoll queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitEggRoll { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the Dump queue, and increases the queue's weight accordingly.")]
+        public int YieldMultWaitDump { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the LanTrade queue, and increases the queue's weight accordingly. Not included in FlexTrade.")]
+        public int YieldMultWaitLanTrade { get; set; } = 1;
+
+        [Category(TimeBias), Description("Checks time elapsed since the user joined the LanRoll queue, and increases the queue's weight accordingly. Not included in FlexTrade.")]
+        public int YieldMultWaitLanRoll { get; set; } = 1;
     }
 
     public enum FlexBiasMode
