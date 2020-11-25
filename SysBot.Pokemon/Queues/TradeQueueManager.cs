@@ -26,7 +26,7 @@ namespace SysBot.Pokemon
         {
             Hub = hub;
             Info = new TradeQueueInfo<T>(hub);
-            AllQueues = new[] { Seed, Dump, Clone, FixOT, PowerUp, EggRoll, LanTrade, LanRoll, Trade };
+            AllQueues = new[] { Seed, Dump, Clone, FixOT, PowerUp, EggRoll, Trade };
             LanQueues = new[] { LanTrade, LanRoll };
 
             foreach (var q in AllQueues)

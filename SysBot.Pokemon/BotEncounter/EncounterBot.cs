@@ -128,18 +128,11 @@ namespace SysBot.Pokemon
                 Log("Looking for a new dog...");
 
                 // At the start of each loop, an A press is needed to exit out of a prompt.
-                await Click(A, 0_500, token).ConfigureAwait(false);
+                await Click(A, 0_200, token).ConfigureAwait(false);
                 await SetStick(LEFT, 0, 30000, 1_000, token).ConfigureAwait(false);
 
-                // Encounters Zacian/Zamazenta
-                await Click(A, 0_600, token).ConfigureAwait(false);
-
-                // Cutscene loads
-                await Click(A, 2_600, token).ConfigureAwait(false);
-
-                // Click through all the menus.
                 while (!await IsInBattle(token).ConfigureAwait(false))
-                    await Click(A, 1_000, token).ConfigureAwait(false);
+                    await Click(A, 0_300, token).ConfigureAwait(false);
 
                 Log("Encounter started! Checking details...");
                 var pk = await ReadUntilPresent(LegendaryPokemonOffset, 2_000, 0_200, token).ConfigureAwait(false);
@@ -206,7 +199,7 @@ namespace SysBot.Pokemon
 
                 // Assume the user has camp pre-selected before the routine begins.
                 await Click(X, 1_000, token).ConfigureAwait(false);
-                await Click(A, 7_000 + Hub.Config.Timings.ExtraTimeLoadCamp, token).ConfigureAwait(false);
+                await Click(A, 5_000 + Hub.Config.Timings.ExtraTimeLoadCamp, token).ConfigureAwait(false);
 
                 // An offset would be ideal, I'm just too lazy to learn how to grab offsets...
                 Log("Loaded Camp! Exiting...");
@@ -215,8 +208,6 @@ namespace SysBot.Pokemon
                 // We use an IsInBattle because the battle will start when we exit camp.
                 while (!await IsInBattle(token).ConfigureAwait(false))
                 {
-                    await Click(B, 1_000, token).ConfigureAwait(false);
-                    await Click(B, 1_000, token).ConfigureAwait(false);
                     await Click(B, 1_000, token).ConfigureAwait(false);
                     await Click(A, 1_000, token).ConfigureAwait(false);
                 }
