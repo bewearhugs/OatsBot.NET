@@ -170,10 +170,14 @@ namespace SysBot.Pokemon
                 await Unban(token).ConfigureAwait(false);
 
             var pkm = poke.TradeData;
+
             if (pkm.Species != 0)
             {
-                if (CheckForAdOT(pkm) && !Hub.Config.Legality.AllowAdOT)
+                if (CheckForAdOT(pkm) && !Hub.Config.Legality.AllowAds)
                     pkm.OT_Name = $"{Hub.Config.Legality.GenerateOT}";
+
+                if (CheckForAdNickname(pkm) && !Hub.Config.Legality.AllowAds)
+                    pkm.Nickname = pkm.ClearNickname();
 
                 await SetBoxPokemon(pkm, InjectBox, InjectSlot, token, sav).ConfigureAwait(false);
             }
@@ -325,7 +329,7 @@ namespace SysBot.Pokemon
             {
                 var clone = (PK8)pk.Clone();
 
-                if (CheckForAdOT(clone) && clone.OT_Name != $"{TrainerName}")
+                if ((CheckForAdOT(clone) || CheckForAdNickname(clone)) && clone.OT_Name != $"{TrainerName}")
                 {
                     clone.OT_Name = $"{TrainerName}";
                     clone.ClearNickname();
@@ -781,16 +785,9 @@ namespace SysBot.Pokemon
             Log($"Barrier sync timed out after {timeoutAfter} seconds. Continuing.");
         }
 
-        private bool CheckForAdOT(PK8 pkm)
-        {
-            var adOT = System.Text.RegularExpressions.Regex.Match(pkm.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != ""
-                    || System.Text.RegularExpressions.Regex.Match(pkm.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != "";
+        private bool CheckForAdOT(PK8 pkm) => System.Text.RegularExpressions.Regex.Match(pkm.OT_Name, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != "";
 
-            if (adOT)
-                return true;
-            else
-                return false;
-        }
+        private bool CheckForAdNickname(PK8 pkm) => System.Text.RegularExpressions.Regex.Match(pkm.Nickname, @"(YT$)|(YT\w*$)|(Lab$)|(\.\w*)|(TV$)|(PKHeX)|(FB:)|(SysBot)|(AuSLove)").Value != "";
 
         /// <summary>
         /// Checks if the barrier needs to get updated to consider this bot.

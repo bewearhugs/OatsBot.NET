@@ -167,7 +167,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
             await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.LanRoll, PokeTradeType.LanRoll, ign).ConfigureAwait(false);
         }
 
-        public static void LanRollTrade(PK8 pkm)
+        private static void LanRollTrade(PK8 pkm)
         {
             int[] regional = { 26, 27, 28, 37, 38, 50, 51, 52, 53, 77, 78, 79, 80, 83, 103,
                   105, 110, 122, 144, 145, 146, 199, 222, 263, 264, 554, 555, 562, 618 };
