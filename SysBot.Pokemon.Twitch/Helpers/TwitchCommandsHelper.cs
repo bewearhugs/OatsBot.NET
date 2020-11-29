@@ -33,7 +33,7 @@ namespace SysBot.Pokemon.Twitch
             }
 
             var sav = AutoLegalityWrapper.GetTrainerInfo(PKX.Generation);
-            PKM pkm = sav.GetLegal(template, out _);
+            PKM pkm = sav.GetLegal(template, out var result);
 
             if (pkm.Nickname == "Egg")
                 TradeExtensions.EggTrade((PK8)pkm);
@@ -43,7 +43,8 @@ namespace SysBot.Pokemon.Twitch
 
             if (!pkm.CanBeTraded())
             {
-                msg = $"Skipping trade, @{username}: Provided Pokémon content is blocked from trading!";
+                var reason = result == "Timeout" ? "Set took too long to generate." : "Unable to legalize the Pokémon.";
+                msg = $"Skipping trade, @{username}: {reason}";
                 return false;
             }
 

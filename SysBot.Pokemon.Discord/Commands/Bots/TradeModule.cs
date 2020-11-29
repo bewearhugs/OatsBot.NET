@@ -94,7 +94,7 @@ namespace SysBot.Pokemon.Discord
             }
 
             var sav = AutoLegalityWrapper.GetTrainerInfo(gen);
-            var pkm = sav.GetLegal(template, out _);
+            var pkm = sav.GetLegal(template, out var result);
 
             if (Info.Hub.Config.Trade.DittoTrade && pkm.Species == 132)
                 TradeExtensions.DittoTrade(pkm);
@@ -107,7 +107,8 @@ namespace SysBot.Pokemon.Discord
             var invalid = !(pkm is PK8) || (!la.Valid && SysCordInstance.Self.Hub.Config.Legality.VerifyLegality);
             if (invalid && !Info.Hub.Config.Trade.Memes)
             {
-                var imsg = $"Oops! I wasn't able to create something from that. Here's my best attempt for that {spec}!";
+                var reason = result == "Timeout" ? "That set took too long to generate." : "I wasn't able to create something from that.";
+                var imsg = $"Oops! {reason} Here's my best attempt for that {spec}!";
                 await Context.Channel.SendPKMAsync(pkm, imsg).ConfigureAwait(false);
                 return;
             }
