@@ -3,9 +3,7 @@
 
 ## Support Discord:
 
-For support on this fork of SysBot.NET, join this Discord!
-
-[<img src="https://canary.discordapp.com/api/guilds/676238041907724322/widget.png?style=banner2">](https://discord.gg/FPdYEPh)
+There is no Discord server that is providing support for this fork.
 
 Support of this fork will NOT be provided in the Official PKHeX Discord server, please do not bother them.
 
