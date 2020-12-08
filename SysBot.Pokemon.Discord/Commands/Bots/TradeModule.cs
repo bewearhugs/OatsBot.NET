@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using PKHeX.Core;
 using SysBot.Base;
 using System;
@@ -56,22 +57,8 @@ namespace SysBot.Pokemon.Discord
         [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
         public async Task TradeAsyncAttach([Summary("Trade Code")] int code)
         {
-            var attachment = Context.Message.Attachments.FirstOrDefault();
-            if (attachment == default)
-            {
-                await ReplyAsync("No attachment provided!").ConfigureAwait(false);
-                return;
-            }
-
-            var att = await NetUtil.DownloadPKMAsync(attachment).ConfigureAwait(false);
-            if (!att.Success || !(att.Data is PK8 pk8))
-            {
-                await ReplyAsync("No PK8 attachment provided!").ConfigureAwait(false);
-                return;
-            }
-
             var sig = Context.User.GetFavor();
-            await AddTradeToQueueAsync(code, Context.User.Username, pk8, sig).ConfigureAwait(false);
+            await TradeAsyncAttach(code, sig, Context.User).ConfigureAwait(false);
         }
 
         [Command("trade")]
@@ -120,7 +107,7 @@ namespace SysBot.Pokemon.Discord
 
             pkm.ResetPartyStats();
             var sig = Context.User.GetFavor();
-            await AddTradeToQueueAsync(code, Context.User.Username, (PK8)pkm, sig).ConfigureAwait(false);
+            await AddTradeToQueueAsync(code, Context.User.Username, (PK8)pkm, sig, Context.User).ConfigureAwait(false);
         }
 
         [Command("trade")]
@@ -217,7 +204,66 @@ namespace SysBot.Pokemon.Discord
             await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.EggRoll, PokeTradeType.EggRoll).ConfigureAwait(false);
         }
 
-        private async Task AddTradeToQueueAsync(int code, string trainerName, PK8 pk8, RequestSignificance sig)
+        [Command("tradeUser")]
+        [Alias("tu", "tradeOther")]
+        [Summary("Makes the bot trade the mentioned user the attached file.")]
+        [RequireSudo]
+        public async Task TradeAsyncAttachUser([Summary("Trade Code")] int code, [Remainder] string _)
+        {
+            if (Context.Message.MentionedUsers.Count > 1)
+            {
+                await ReplyAsync("Too many mentions. Queue one user at a time.").ConfigureAwait(false);
+                return;
+            }
+
+            if (Context.Message.MentionedUsers.Count == 0)
+            {
+                await ReplyAsync("A user must be mentioned in order to do this.").ConfigureAwait(false);
+                return;
+            }
+
+            var usr = Context.Message.MentionedUsers.ElementAt(0);
+
+            if (!IsTradeableUser(usr))
+            {
+                await ReplyAsync("Mentioned user cannot be traded because they are a bot account.").ConfigureAwait(false);
+                return;
+            }
+
+            var sig = usr.GetFavor();
+            await TradeAsyncAttach(code, sig, usr).ConfigureAwait(false);
+        }
+
+        [Command("tradeUser")]
+        [Alias("tu", "tradeOther")]
+        [Summary("Makes the bot trade the mentioned user the attached file.")]
+        [RequireSudo]
+        public async Task TradeAsyncAttachUser([Remainder] string _)
+        {
+            var code = Info.GetRandomTradeCode();
+            await TradeAsyncAttachUser(code, _).ConfigureAwait(false);
+        }
+
+        private async Task TradeAsyncAttach(int code, RequestSignificance sig, SocketUser usr)
+        {
+            var attachment = Context.Message.Attachments.FirstOrDefault();
+            if (attachment == default)
+            {
+                await ReplyAsync("No attachment provided!").ConfigureAwait(false);
+                return;
+            }
+
+            var att = await NetUtil.DownloadPKMAsync(attachment).ConfigureAwait(false);
+            if (!att.Success || !(att.Data is PK8 pk8))
+            {
+                await ReplyAsync("No PK8 attachment provided!").ConfigureAwait(false);
+                return;
+            }
+
+            await AddTradeToQueueAsync(code, usr.Username, pk8, sig, usr).ConfigureAwait(false);
+        }
+
+        private async Task AddTradeToQueueAsync(int code, string trainerName, PK8 pk8, RequestSignificance sig, SocketUser usr)
         {
             if (!pk8.CanBeTraded() || !new TradeExtensions(Info.Hub).IsItemMule(pk8))
             {
@@ -231,8 +277,10 @@ namespace SysBot.Pokemon.Discord
             if (!la.Valid && Info.Hub.Config.Legality.VerifyLegality)
                 await ReplyAsync("PK8 attachment is not legal, and cannot be traded!").ConfigureAwait(false);
             else
-                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific).ConfigureAwait(false);
+                await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific, usr).ConfigureAwait(false);
         }
+
+        private bool IsTradeableUser(SocketUser user) => user.IsBot || user.IsWebhook ? false : true;
 
         private async Task<bool> TrollAsync(bool invalid, IBattleTemplate set)
         {

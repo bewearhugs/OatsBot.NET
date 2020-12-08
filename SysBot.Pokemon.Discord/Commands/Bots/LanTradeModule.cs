@@ -76,7 +76,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
 
                 var code = Info.GetRandomTradeCode(); // Ignored, but used for method arguments
                 var sig = Context.User.GetFavor();
-                await Context.AddToQueueAsync(code, Context.User.Username, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade, content).ConfigureAwait(false);
+                await Context.AddToQueueAsync(code, Context.User.Username, sig, pk8, PokeRoutineType.LanTrade, PokeTradeType.LanTrade, Context.User, content).ConfigureAwait(false);
             }
             else if (content.Length > 12 && numLines > 1)
                 await ReplyAsync("Showdown Sets are disabled for LAN Trading.").ConfigureAwait(false);
@@ -164,7 +164,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
 
             pkm.ResetPartyStats();
             var sig = Context.User.GetFavor();
-            await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.LanRoll, PokeTradeType.LanRoll, ign).ConfigureAwait(false);
+            await Context.AddToQueueAsync(code, Context.User.Username, sig, pkm, PokeRoutineType.LanRoll, PokeTradeType.LanRoll, Context.User, ign).ConfigureAwait(false);
         }
 
         private static void LanRollTrade(PK8 pkm)
