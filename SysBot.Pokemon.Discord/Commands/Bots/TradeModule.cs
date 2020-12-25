@@ -254,7 +254,7 @@ namespace SysBot.Pokemon.Discord
             }
 
             var att = await NetUtil.DownloadPKMAsync(attachment).ConfigureAwait(false);
-            if (!att.Success || !(att.Data is PK8 pk8))
+            if (!att.Success || (att.Data is not PK8 pk8))
             {
                 await ReplyAsync("No PK8 attachment provided!").ConfigureAwait(false);
                 return;
@@ -280,7 +280,7 @@ namespace SysBot.Pokemon.Discord
                 await Context.AddToQueueAsync(code, trainerName, sig, pk8, PokeRoutineType.LinkTrade, PokeTradeType.Specific, usr).ConfigureAwait(false);
         }
 
-        private bool IsTradeableUser(SocketUser user) => user.IsBot || user.IsWebhook ? false : true;
+        private bool IsTradeableUser(SocketUser user) => !user.IsBot && !user.IsWebhook;
 
         private async Task<bool> TrollAsync(bool invalid, IBattleTemplate set)
         {

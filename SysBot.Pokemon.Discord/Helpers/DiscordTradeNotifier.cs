@@ -15,7 +15,7 @@ namespace SysBot.Pokemon.Discord
         private SocketCommandContext Context { get; }
         private SocketUser Trader { get; }
         public Action<PokeRoutineExecutor>? OnFinish { private get; set; }
-        public PokeTradeHub<PK8> Hub = SysCordInstance.Self.Hub;
+        public readonly PokeTradeHub<PK8> Hub = SysCordInstance.Self.Hub;
 
         public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketCommandContext context, SocketUser trader)
         {

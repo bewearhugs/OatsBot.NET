@@ -9,15 +9,15 @@ namespace SysBot.Pokemon
     {
         private readonly PokeTradeHub<T> Hub;
 
-        private readonly PokeTradeQueue<T> Trade = new PokeTradeQueue<T>(PokeTradeType.Specific);
-        private readonly PokeTradeQueue<T> Seed = new PokeTradeQueue<T>(PokeTradeType.Seed);
-        private readonly PokeTradeQueue<T> Clone = new PokeTradeQueue<T>(PokeTradeType.Clone);
-        private readonly PokeTradeQueue<T> FixOT = new PokeTradeQueue<T>(PokeTradeType.FixOT);
-        private readonly PokeTradeQueue<T> PowerUp = new PokeTradeQueue<T>(PokeTradeType.PowerUp);
-        private readonly PokeTradeQueue<T> EggRoll = new PokeTradeQueue<T>(PokeTradeType.EggRoll);
-        private readonly PokeTradeQueue<T> Dump = new PokeTradeQueue<T>(PokeTradeType.Dump);
-        private readonly PokeTradeQueue<T> LanTrade = new PokeTradeQueue<T>(PokeTradeType.LanTrade);
-        private readonly PokeTradeQueue<T> LanRoll = new PokeTradeQueue<T>(PokeTradeType.LanRoll);
+        private readonly PokeTradeQueue<T> Trade = new(PokeTradeType.Specific);
+        private readonly PokeTradeQueue<T> Seed = new(PokeTradeType.Seed);
+        private readonly PokeTradeQueue<T> Clone = new(PokeTradeType.Clone);
+        private readonly PokeTradeQueue<T> FixOT = new(PokeTradeType.FixOT);
+        private readonly PokeTradeQueue<T> PowerUp = new(PokeTradeType.PowerUp);
+        private readonly PokeTradeQueue<T> EggRoll = new(PokeTradeType.EggRoll);
+        private readonly PokeTradeQueue<T> Dump = new(PokeTradeType.Dump);
+        private readonly PokeTradeQueue<T> LanTrade = new(PokeTradeType.LanTrade);
+        private readonly PokeTradeQueue<T> LanRoll = new(PokeTradeType.LanRoll);
         public readonly TradeQueueInfo<T> Info;
         public readonly PokeTradeQueue<T>[] AllQueues;
         public readonly PokeTradeQueue<T>[] LanQueues;
@@ -203,7 +203,7 @@ namespace SysBot.Pokemon
         }
 
         // hook in here if you want to forward the message elsewhere???
-        public readonly List<Action<PokeTradeBot, PokeTradeDetail<T>>> Forwarders = new List<Action<PokeTradeBot, PokeTradeDetail<T>>>();
+        public readonly List<Action<PokeTradeBot, PokeTradeDetail<T>>> Forwarders = new();
 
         public void StartTrade(PokeTradeBot b, PokeTradeDetail<T> detail)
         {
