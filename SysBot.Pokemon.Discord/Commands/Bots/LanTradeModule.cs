@@ -61,7 +61,7 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
                 }
 
                 var att = await NetUtil.DownloadPKMAsync(attachment).ConfigureAwait(false);
-                if (!att.Success || !(att.Data is PK8 pk8))
+                if (!att.Success || att.Data is not PK8 pk8)
                 {
                     await ReplyAsync("No PK8 attachment provided!").ConfigureAwait(false);
                     return;
@@ -93,7 +93,6 @@ namespace SysBot.Pokemon.Discord.Commands.Bots
         [RequireQueueRole(nameof(DiscordManager.RolesLanRoll))]
         public async Task LanRollAsync([Summary("User Requested IGN")][Remainder] string ign = "")
         {
-
             if (ign.Length > 12)
             {
                 await ReplyAsync("IGN cannot exceed 12 characters.").ConfigureAwait(false);

@@ -347,9 +347,9 @@ namespace SysBot.Pokemon
                 }
 
                 var la = new LegalityAnalysis(clone);
-                if (!la.Valid && Hub.Config.Legality.VerifyLegality)
+                if (!la.Valid)
                 {
-                    Log($"FixOT request has detected an invalid Pokémon: {(Species)clone.Species}");
+                    Log($"FixOT request (from {poke.Trainer.TrainerName}) has detected an invalid Pokémon: {(Species)clone.Species}");
                     if (DumpSetting.Dump)
                         DumpPokemon(DumpSetting.DumpFolder, "hacked", clone);
 
@@ -392,9 +392,9 @@ namespace SysBot.Pokemon
                     d.DynamaxLevel = (byte)(d.CanHaveDynamaxLevel(clone) ? 10 : 0);
 
                 var la = new LegalityAnalysis(clone);
-                if (!la.Valid && Hub.Config.Legality.VerifyLegality)
+                if (!la.Valid)
                 {
-                    Log($"PowerUp request has detected an invalid Pokémon: {(Species)clone.Species}");
+                    Log($"PowerUp request (from {poke.Trainer.TrainerName}) has detected an invalid Pokémon: {(Species)clone.Species}");
                     if (DumpSetting.Dump)
                         DumpPokemon(DumpSetting.DumpFolder, "hacked", clone);
 
@@ -430,9 +430,9 @@ namespace SysBot.Pokemon
                     poke.SendNotification(this, clone, "Here's what you showed me!");
 
                 var la = new LegalityAnalysis(clone);
-                if (!la.Valid && Hub.Config.Legality.VerifyLegality)
+                if (!la.Valid)
                 {
-                    Log($"Clone request has detected an invalid Pokémon: {(Species)clone.Species}");
+                    Log($"Clone request (from {poke.Trainer.TrainerName}) has detected an invalid Pokémon: {(Species)clone.Species}");
                     if (DumpSetting.Dump)
                         DumpPokemon(DumpSetting.DumpFolder, "hacked", clone);
 
