@@ -206,10 +206,11 @@ namespace SysBot.Pokemon.WinForms
             this.Controls.Add(this.B_Start);
             this.Controls.Add(this.TC_Main);
             this.Icon = global::SysBot.Pokemon.WinForms.Properties.Resources.icon;
-            this.MaximizeBox = false;
+            this.MaximizeBox = true;
+            this.MinimizeBox = true;
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SysBot: Pokémon";
+            this.Text = "Sysbot-Stuffulfork";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.TC_Main.ResumeLayout(false);
             this.Tab_Bots.ResumeLayout(false);
