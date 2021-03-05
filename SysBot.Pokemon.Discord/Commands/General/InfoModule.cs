@@ -18,7 +18,7 @@ namespace SysBot.Pokemon.Discord
     {
         private const string detail = "I am an open source Discord bot powered by PKHeX.Core and other open source software.";
         private const string repo = "https://github.com/kwsch/SysBot.NET";
-        private const string forkRepo = "https://github.com/OatsFX/OatsBot.NET";
+        private const string forkRepo = "https://github.com/bewearhugs/Stufful.NET/    Forked from Oats repo";
 
         [Command("info")]
         [Alias("about", "whoami", "owner")]
@@ -28,7 +28,7 @@ namespace SysBot.Pokemon.Discord
 
             var builder = new EmbedBuilder
             {
-                Color = new Color(114, 137, 218),
+                Color = new Color(#FDFD96),
                 Description = detail,
             };
 
@@ -52,7 +52,7 @@ namespace SysBot.Pokemon.Discord
                 $"- {Format.Bold("Users")}: {Context.Client.Guilds.Sum(g => g.Users.Count)}\n"
                 );
 
-            await ReplyAsync("Here's a bit about me!", embed: builder.Build()).ConfigureAwait(false);
+            await ReplyAsync("Rawr rawr rawr", embed: builder.Build()).ConfigureAwait(false);
         }
 
         private static string GetUptime() => (DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss");
