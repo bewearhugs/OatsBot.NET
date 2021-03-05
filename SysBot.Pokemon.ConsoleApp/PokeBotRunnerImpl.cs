@@ -39,7 +39,6 @@ namespace SysBot.Pokemon.ConsoleApp
 
             Twitch = new TwitchBot(Hub.Config.Twitch, Hub);
             if (Hub.Config.Twitch.DistributionCountDown)
-                Hub.BotSync.BarrierReleasingActions.Add(() => Twitch.StartingDistribution(config.MessageStart));
         }
 
         private void AddDiscordBot(string apiToken)
