@@ -16,21 +16,30 @@ namespace SysBot.Pokemon.ConsoleApp
             PokeTradeBot.SeedChecker = new Z3SeedSearchHandler<PK8>();
 
             if (args.Length > 1)
-                Console.WriteLine("This program does not support command line arguments.");
-
-            if (!File.Exists(ConfigPath))
-            {
-                ExitNoConfig();
-                return;
-            }
-
-            try
+ if (File.Exists(ConfigPath))
             {
                 var lines = File.ReadAllText(ConfigPath);
-                var cfg = JsonConvert.DeserializeObject<ProgramConfig>(lines);
-                RunBots(cfg);
+                var prog = JsonConvert.DeserializeObject<ProgramConfig>(lines);
+                var env = new PokeBotRunnerImpl(prog.Hub);
+                foreach (var bot in prog.Bots)
+                {
+                    bot.Initialize();
+                    if (!AddBot(env, bot))
+                        Console.WriteLine($"Failed to add bot: {bot.IP}");
+                }
+
+                LogUtil.Forwarders.Add((msg, ident) => Console.WriteLine($"{ident}: {msg}"));
+                env.StartAll();
+                Console.WriteLine("Started all bots.");
+                Console.WriteLine("Press any key to stop execution and quit.");
+                Console.ReadKey();
+                env.StopAll();
             }
-            catch
+            else
+            {
+                Console.WriteLine("Unable to parse config file. Please copy your config from the WinForms project.");
+                Console.WriteLine("Press any key to exit.");
+
             {
                 Console.WriteLine("Unable to start bots with saved config file. Please copy your config from the WinForms project or delete it and reconfigure.");
                 Console.ReadKey();
