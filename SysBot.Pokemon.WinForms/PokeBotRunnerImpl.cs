@@ -45,8 +45,7 @@ namespace SysBot.Pokemon
                 return;
 
             Twitch = new TwitchBot(Hub.Config.Twitch, Hub);
-            if (Hub.Config.Twitch.DistributionCountDown)
-                Hub.BotSync.BarrierReleasingActions.Add(() => Twitch.StartingDistribution(config.MessageStart));
+    Hub.BotSync.BarrierReleasingActions.Add(() => Twitch.StartingDistribution(config.MessageStart));
         }
 
         private void AddYouTubeBot(YouTubeSettings config)
