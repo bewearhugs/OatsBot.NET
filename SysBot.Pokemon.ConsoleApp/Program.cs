@@ -13,6 +13,8 @@ namespace SysBot.Pokemon.ConsoleApp
         private static void Main(string[] args)
         {
             Console.WriteLine("Starting up...");
+            PokeTradeBot.SeedChecker = new Z3SeedSearchHandler<PK8>();
+
             if (args.Length > 1)
                 Console.WriteLine("This program does not support command line arguments.");
 
