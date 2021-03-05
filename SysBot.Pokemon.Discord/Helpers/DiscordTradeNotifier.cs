@@ -29,14 +29,14 @@ namespace SysBot.Pokemon.Discord
         public void TradeInitialize(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
         {
             var receive = Data.Species == 0 ? string.Empty : $" ({Data.Nickname})";
-            Trader.SendMessageAsync($"Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
+            Trader.SendMessageAsync($"RAWR Initializing trade{receive}. Please be ready. Your code is **{Code:0000 0000}**.").ConfigureAwait(false);
         }
 
         public void TradeSearching(PokeRoutineExecutor routine, PokeTradeDetail<T> info)
         {
             var name = Info.TrainerName;
             var trainer = string.IsNullOrEmpty(name) ? string.Empty : $", {name}";
-            Trader.SendMessageAsync($"I'm waiting for you{trainer}! Your code is **{Code:0000 0000}**. My IGN is **{routine.InGameName}**.").ConfigureAwait(false);
+            Trader.SendMessageAsync($"RAWR I'm waiting for you{trainer}! Your code is **{Code:0000 0000}**. My IGN is **{routine.InGameName}**.").ConfigureAwait(false);
 
             string gameText = $"{SysCordInstance.Settings.BotGameStatus.Replace("{0}", $"On Trade #{info.ID}")}";
             Context.Client.SetGameAsync(gameText).ConfigureAwait(false);
@@ -83,14 +83,14 @@ namespace SysBot.Pokemon.Discord
             }
 
             if (Data.IsEgg && info.Type == PokeTradeType.EggRoll)
-                message = tradedToUser != 0 ? $"Trade finished. Enjoy your Mysterious egg!" : "Trade finished!";
+                message = tradedToUser != 0 ? $"RAWR Trade finished. Enjoy your Mysterious egg!" : "Trade finished!";
             if (Data.IsEgg && info.Type == PokeTradeType.LanRoll)
-                message = tradedToUser != 0 ? $"Trade finished. Enjoy your Really Illegal Egg!" : "Trade finished!";
-            else message = tradedToUser != 0 ? $"Trade finished. Enjoy your {(Species)tradedToUser}!" : "Trade finished!";
+                message = tradedToUser != 0 ? $"RAWR Trade finished. Enjoy your Really Illegal Egg!" : "Trade finished!";
+            else message = tradedToUser != 0 ? $"RAWR Trade finished. Enjoy your {(Species)tradedToUser}!" : "Trade finished!";
 
             Trader.SendMessageAsync(message).ConfigureAwait(false);
             if (result.Species != 0 && Hub.Config.Discord.ReturnPK8s)
-                Trader.SendPKMAsync(result, $"Here is what you traded me!{(info.Type != PokeTradeType.LanTrade && info.Type != PokeTradeType.LanRoll /* Don't want people thinking Showdown works on LAN */? $"\n{ReusableActions.GetFormattedShowdownText(result)}" : "")}").ConfigureAwait(false);
+                Trader.SendPKMAsync(result, $"RAWR Here is what you traded me!{(info.Type != PokeTradeType.LanTrade && info.Type != PokeTradeType.LanRoll /* Don't want people thinking Showdown works on LAN */? $"\n{ReusableActions.GetFormattedShowdownText(result)}" : "")}").ConfigureAwait(false);
         }
 
         public void SendNotification(PokeRoutineExecutor routine, PokeTradeDetail<T> info, string message)
@@ -129,7 +129,7 @@ namespace SysBot.Pokemon.Discord
                 x.Value = lines;
                 x.IsInline = false;
             });
-            var msg = $"Here's your seed details for `{r.Seed:X16}`:";
+            var msg = $"RAWR Here's your seed details for `{r.Seed:X16}`:";
             if (Hub.Config.SeedCheck.PostResultToChannel && !Hub.Config.SeedCheck.PostResultToBoth)
                 Context.Channel.SendMessageAsync(Context.User.Mention + " - " + msg, embed: embed.Build()).ConfigureAwait(false);
             else if (Hub.Config.SeedCheck.PostResultToBoth)
