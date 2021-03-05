@@ -4,7 +4,7 @@ using SysBot.Pokemon.Twitch;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SysBot.Pokemon.ConsoleApp
+namespace SysBot.Pokemon
 {
     /// <summary>
     /// Bot Environment implementation with Integrations added.
@@ -38,7 +38,8 @@ namespace SysBot.Pokemon.ConsoleApp
                 return;
 
             Twitch = new TwitchBot(Hub.Config.Twitch, Hub);
-            if (Hub.Config.Twitch.DistributionCountDown)
+            Hub.BotSync.BarrierReleasingActions.Add(() => Twitch.StartingDistribution(config.MessageStart));
+
         }
 
         private void AddDiscordBot(string apiToken)
