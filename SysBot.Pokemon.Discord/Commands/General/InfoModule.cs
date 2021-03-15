@@ -28,7 +28,7 @@ namespace SysBot.Pokemon.Discord
 
             var builder = new EmbedBuilder
             {
-                Color = new Color(253, 253, 150),
+                Color = new Color(0xFDFD96),
                 Description = detail,
             };
 
